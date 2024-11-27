@@ -1,0 +1,4122 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+
+		<title>Emotion Scenarios</title>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Edu+NSW+ACT+Foundation:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
+
+		<style>
+			/* Global Styles */
+			* {
+				margin: 0;
+				outline: none;
+				border: none;
+				padding: 0;
+				font-size: 35px;
+				font-weight: 700;
+				box-sizing: border-box;
+				font-family: "Edu NSW ACT Foundation", "Comic Sans MS",
+					"Chalkboard SE", cursive, sans-serif;
+				box-shadow: none;
+			}
+
+			body {
+				display: flex;
+				height: 100vh;
+				background: linear-gradient(135deg, #dbe2ef, #3f72af);
+				background-size: 400% 400%;
+				animation: gradientAnimation 10s ease infinite;
+				color: #ffffff;
+			}
+
+			/* Gradient Animation */
+			@keyframes gradientAnimation {
+				0% {
+					background-position: 0% 50%;
+				}
+				50% {
+					background-position: 100% 50%;
+				}
+				100% {
+					background-position: 0% 50%;
+				}
+			}
+
+			/* Left Panel Styles */
+			.buttons {
+				width: 40%;
+				background-color: rgba(255, 255, 255, 0.95);
+				border-right: 2px solid #ddd;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				overflow-y: visible;
+				padding: 20px;
+			}
+
+			.buttons input {
+				line-height: 2; /* Resets the line height for proper vertical alignment */
+				height: 150px; /* Ensures the input grows to fit the text */
+				width: 80%;
+				font-size: 30px;
+				overflow: visible;
+				box-sizing: border-box;
+				padding: 15px 10px; /* Adjust padding for vertical and horizontal space */
+				margin-bottom: 20px;
+				border: 2px solid #3f72af;
+				border-radius: 8px;
+				text-align: center;
+				outline: none;
+				color: #3f72af;
+				background-color: rgba(255, 255, 255, 0.9);
+				box-sizing: border-box; /* Ensure padding and border are included in dimensions */
+				-webkit-text-size-adjust: 100%; /* Avoid font scaling on zoom */
+				overflow: hidden;
+			}
+
+			.buttons input::placeholder {
+				color: #666;
+				overflow: visible;
+			}
+
+			.buttons button {
+				width: 80%;
+				padding: 15px;
+				margin: 10px 0;
+				border: 2px solid rgba(255, 255, 255, 0.9);
+				background-color: transparent;
+				color: #3f72af;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 30px;
+				transition: all 0.2s ease-in-out;
+			}
+
+			.buttons button:hover {
+				background-color: #112d4e;
+				color: #ffffff;
+			}
+
+			/* Right Panel Styles */
+			.result-container {
+				width: 60%;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+			}
+
+			.result {
+				width: 100%;
+				font-size: 50px !important;
+				height: 50%;
+				background-color: rgba(255, 255, 255, 0.95);
+				padding: 20px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				border-bottom: 2px solid #ddd;
+				text-align: center;
+				box-shadow: inset 0px -2px 10px rgba(0, 0, 0, 0.1);
+				border-radius: 0 10px 0 0;
+				color: #112d4e;
+			}
+
+			.behavior-buttons {
+				width: 100%;
+				height: 50%;
+				background-color: rgba(255, 255, 255, 0.95);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 15px;
+				padding: 20px;
+				overflow-y: scroll;
+				border-radius: 0 0 10px 0;
+			}
+
+			.behavior-buttons button {
+				width: 90%;
+				padding: 15px;
+				color: #ffffff;
+				background-color: #3f72af;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 30px;
+				transition: all 0.2s ease-in-out;
+			}
+
+			.behavior-buttons button:hover {
+				color: #ffffff;
+			}
+
+			.behavior-buttons button:disabled {
+				color: gray;
+			}
+
+			.hidden {
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Left Panel -->
+		<div class="buttons" id="buttons">
+			<button onclick="showScenario()">Show next Scenario</button>
+			<input
+				id="scenario-emotion"
+				type="text"
+				placeholder="Enter an emotion"
+			/>
+		</div>
+
+		<!-- Right Panel -->
+
+		<div class="result-container">
+			<div class="result" id="result">
+				<p>
+					Enter an emotion and click "Show next Scenario" to get
+					started!
+				</p>
+			</div>
+			<div class="behavior-buttons hidden" id="behavior-buttons">
+				<button id="button1"></button>
+				<button id="button2"></button>
+				<button id="button3"></button>
+				<button id="button4"></button>
+			</div>
+		</div>
+		<script>
+			const data = {
+				happy: {
+					scenarios: [
+						{
+							text: "I got a gift from my best friend.",
+							keywords: "gift friend thank you happy",
+							proper: [
+								"Say thank you for the gift.",
+								"Show that I’m happy in a nice way.",
+							],
+							improper: [
+								"Ignore the gift.",
+								"Show off the gift to others.",
+							],
+						},
+						{
+							text: "I got an A+ on my test.",
+							keywords: "A+ test achievement",
+							proper: [
+								"Tell my family and celebrate together.",
+								"Tell others to keep trying their best.",
+							],
+							improper: [
+								"Show off my grade to everyone.",
+								"Make fun of others who didn’t do well.",
+							],
+						},
+						{
+							text: "I finished a puzzle I worked on for weeks.",
+							keywords: "puzzle achievement fun project",
+							proper: [
+								"Tell my family about it.",
+								"Start another puzzle or fun project.",
+							],
+							improper: [
+								"Break the puzzle because I’m too excited.",
+								"Throw the pieces everywhere.",
+							],
+						},
+						{
+							text: "My teacher gave me a nice compliment.",
+							keywords: "teacher compliment thank you motivation",
+							proper: [
+								"Say thank you to my teacher.",
+								"Keep doing a good job.",
+							],
+							improper: [
+								"Ignore what they said.",
+								"Brag about it to my classmates.",
+							],
+						},
+						{
+							text: "I helped my friend with their homework.",
+							keywords: "help friend homework proud",
+							proper: [
+								"Feel proud for helping.",
+								"Tell them to keep practicing.",
+							],
+							improper: [
+								"Tell everyone how much I helped.",
+								"Say mean things because they didn’t know the answers.",
+							],
+						},
+						{
+							text: "My family made my favorite meal as a surprise.",
+							keywords: "family favorite meal surprise thank you",
+							proper: [
+								"Say thank you to my family.",
+								"Enjoy eating together.",
+							],
+							improper: [
+								"Complain about the food.",
+								"Get upset about not having dessert.",
+							],
+						},
+						{
+							text: "I played my favorite game with my friends.",
+							keywords: "game friends fun fair play",
+							proper: [
+								"Have fun and play fair.",
+								"Say ‘good job’ to the winner.",
+							],
+							improper: [
+								"Cheat so I can win.",
+								"Throw the pieces if I lose.",
+							],
+						},
+						{
+							text: "I was invited to a fun party.",
+							keywords: "party fun invitation friends",
+							proper: [
+								"Say yes and thank them for inviting me.",
+								"Be nice to everyone at the party.",
+							],
+							improper: [
+								"Complain about the party.",
+								"Be noisy or mean at the party.",
+							],
+						},
+						{
+							text: "I watched my favorite show after school.",
+							keywords: "favorite show after school enjoy",
+							proper: [
+								"Watch it quietly and enjoy it.",
+								"Talk about my favorite parts calmly.",
+							],
+							improper: [
+								"Yell about the show to everyone.",
+								"Not let anyone else watch TV after me.",
+							],
+						},
+						{
+							text: "I found a dollar on the ground.",
+							keywords: "dollar found honesty teacher",
+							proper: [
+								"Look around to see if someone dropped it.",
+								"Give it to a teacher or adult.",
+							],
+							improper: [
+								"Keep it without checking.",
+								"Spend it right away.",
+							],
+						},
+						{
+							text: "I learned something new for my hobby.",
+							keywords: "learn hobby skill practice",
+							proper: [
+								"Practice the new skill and get better.",
+								"Tell others what I learned in a nice way.",
+							],
+							improper: [
+								"Say mean things to others who don’t know it.",
+								"Stop practicing and just show off.",
+							],
+						},
+						{
+							text: "I got a thank-you card from a friend.",
+							keywords: "thank you card friend appreciation",
+							proper: [
+								"Say thank you to my friend.",
+								"Keep the card in a safe place.",
+							],
+							improper: [
+								"Throw it away without reading it.",
+								"Say the card isn’t good enough.",
+							],
+						},
+						{
+							text: "I finished a hard video game level.",
+							keywords: "video game level achievement family",
+							proper: [
+								"Celebrate by telling my family.",
+								"Help my friends if they are stuck on the same level.",
+							],
+							improper: [
+								"Brag about how easy it was.",
+								"Not let anyone else play the game.",
+							],
+						},
+						{
+							text: "I won a small prize in a contest.",
+							keywords: "contest prize win celebrate",
+							proper: [
+								"Say thank you to the people who made the contest.",
+								"Be happy and celebrate nicely.",
+							],
+							improper: [
+								"Make fun of others who didn’t win.",
+								"Complain about the prize not being bigger.",
+							],
+						},
+						{
+							text: "I baked cookies with my family.",
+							keywords: "baking cookies family fun sharing",
+							proper: [
+								"Have fun and share the cookies with everyone.",
+								"Enjoy the time baking together.",
+							],
+							improper: [
+								"Keep all the cookies for myself.",
+								"Complain that we didn’t make enough.",
+							],
+						},
+						{
+							text: "I got a new book I really wanted.",
+							keywords: "new book excited reading thank you",
+							proper: [
+								"Start reading it and enjoy it.",
+								"Say thank you to the person who gave it to me.",
+							],
+							improper: [
+								"Show off the book to others.",
+								"Forget about the book after getting it.",
+							],
+						},
+						{
+							text: "I got a surprise day off from school.",
+							keywords: "surprise day off fun family",
+							proper: [
+								"Spend the day doing something fun or helpful.",
+								"Thank my parents for the fun plans.",
+							],
+							improper: [
+								"Complain about the surprise.",
+								"Do nothing all day and feel bored.",
+							],
+						},
+						{
+							text: "I made a piece of art I’m proud of.",
+							keywords: "art proud creativity family",
+							proper: [
+								"Show it to my family and friends.",
+								"Keep practicing to make even better art.",
+							],
+							improper: [
+								"Say mean things about other people’s art.",
+								"Tell everyone I’m the best artist.",
+							],
+						},
+						{
+							text: "I was chosen to lead a group project.",
+							keywords: "leader group project teamwork",
+							proper: [
+								"Work with my group as a team.",
+								"Say thank you to my group for trusting me.",
+							],
+							improper: [
+								"Boss everyone around.",
+								"Not listen to anyone else’s ideas.",
+							],
+						},
+						{
+							text: "I got my favorite dessert after dinner.",
+							keywords: "favorite dessert dinner appreciation",
+							proper: [
+								"Say thank you to the person who made it.",
+								"Enjoy it slowly.",
+							],
+							improper: [
+								"Demand more before I finish.",
+								"Refuse to share with anyone.",
+							],
+						},
+						{
+							text: "I saw a pretty rainbow after a storm.",
+							keywords: "rainbow storm nature beautiful",
+							proper: [
+								"Take a moment to enjoy how beautiful it is.",
+								"Tell someone else about it.",
+							],
+							improper: [
+								"Complain about the storm.",
+								"Ignore the rainbow.",
+							],
+						},
+						{
+							text: "I got a kind note from a classmate.",
+							keywords: "kind note classmate appreciation",
+							proper: [
+								"Say thank you to my classmate.",
+								"Keep the note as a nice memory.",
+							],
+							improper: [
+								"Throw it away without reading it.",
+								"Say something mean about the handwriting.",
+							],
+						},
+						{
+							text: "I finished a group fitness challenge.",
+							keywords:
+								"fitness challenge group teamwork celebrate",
+							proper: [
+								"Celebrate with my teammates.",
+								"Tell everyone to keep working hard.",
+							],
+							improper: [
+								"Take all the credit for winning.",
+								"Make fun of others who didn’t finish.",
+							],
+						},
+						{
+							text: "I heard my favorite song on the radio.",
+							keywords: "favorite song radio enjoy music",
+							proper: [
+								"Enjoy listening and maybe sing along.",
+								"Tell someone else how much I like the song.",
+							],
+							improper: [
+								"Turn up the volume too high.",
+								"Say mean things about other songs.",
+							],
+						},
+						{
+							text: "I found my favorite toy after it was lost.",
+							keywords: "toy lost found happy care",
+							proper: [
+								"Feel happy to have it back.",
+								"Take care of it so it doesn’t get lost again.",
+							],
+							improper: [
+								"Blame someone for losing it.",
+								"Play with it roughly again.",
+							],
+						},
+						{
+							text: "I got extra recess time at school.",
+							keywords: "extra recess school play fun",
+							proper: [
+								"Play and have fun with my friends.",
+								"Thank the teacher for the extra time.",
+							],
+							improper: [
+								"Complain that it’s not long enough.",
+								"Not play with others and just sit alone.",
+							],
+						},
+						{
+							text: "I cooked something new all by myself.",
+							keywords: "cooking new independence family recipe",
+							proper: [
+								"Share it with my family.",
+								"Write down the recipe so I can make it again.",
+							],
+							improper: [
+								"Complain about little mistakes.",
+								"Refuse to help clean up afterward.",
+							],
+						},
+						{
+							text: "I saw a cute animal at the park.",
+							keywords: "cute animal park nature quiet",
+							proper: [
+								"Watch it quietly from far away.",
+								"Tell my family how cute it is.",
+							],
+							improper: [
+								"Chase the animal.",
+								"Throw something to scare it away.",
+							],
+						},
+						{
+							text: "I got a nice letter in the mail.",
+							keywords: "nice letter mail friend reply",
+							proper: [
+								"Write back a kind letter to my friend.",
+								"Thank them for writing to me.",
+							],
+							improper: [
+								"Ignore the letter.",
+								"Say mean things about the letter.",
+							],
+						},
+						{
+							text: "I was invited to join a new club at school.",
+							keywords: "school fun activities",
+							proper: [
+								"Thank the group for inviting me.",
+								"Join in and have fun with the club.",
+							],
+							improper: [
+								"Refuse to try the activities.",
+								"Say mean things about the club.",
+							],
+						},
+					],
+				},
+				sad: {
+					scenarios: [
+						{
+							text: "I lost my favorite toy.",
+							keywords: "toy box tears",
+							proper: [
+								"Talk to an adult about my feelings.",
+								"Think of a way to replace it.",
+							],
+							improper: [
+								"Cry loudly without stopping.",
+								"Blame others for losing it.",
+							],
+						},
+						{
+							text: "My best friend moved away.",
+							keywords: "friend house suitcase",
+							proper: [
+								"Write letters to my friend.",
+								"Talk about my feelings with someone.",
+							],
+							improper: [
+								"Refuse to make new friends.",
+								"Get angry at my friend for leaving.",
+							],
+						},
+						{
+							text: "I didn't win a competition I worked hard for.",
+							keywords: "trophy stage judge",
+							proper: [
+								"Congratulate the winners.",
+								"Learn from the experience and try again.",
+							],
+							improper: [
+								"Yell at the judges.",
+								"Refuse to participate in future contests.",
+							],
+						},
+						{
+							text: "I failed a test I studied hard for.",
+							keywords: "test book desk",
+							proper: [
+								"Talk to the teacher for help.",
+								"Work on improving next time.",
+							],
+							improper: [
+								"Throw my books in anger.",
+								"Refuse to study further.",
+							],
+						},
+						{
+							text: "My favorite show was canceled.",
+							keywords: "television show couch",
+							proper: [
+								"Look for other shows you like.",
+								"Express my feelings to a friend.",
+							],
+							improper: [
+								"Complain endlessly.",
+								"Refuse to try anything new.",
+							],
+						},
+						{
+							text: "I wasn't invited to a party.",
+							keywords: "party balloons cake",
+							proper: [
+								"Talk to my friend about my feelings.",
+								"Focus on other fun activities.",
+							],
+							improper: [
+								"Ignore my friend.",
+								"Be rude to others about the party.",
+							],
+						},
+						{
+							text: "I didn't get the toy I wanted for my birthday.",
+							keywords: "toy gifts cake",
+							proper: [
+								"Be grateful for the gifts you received.",
+								"Talk to my family about saving for it.",
+							],
+							improper: [
+								"Throw a tantrum.",
+								"Criticize the gifts you got.",
+							],
+						},
+						{
+							text: "I was left out of a group project.",
+							keywords: "group project table",
+							proper: [
+								"Ask the teacher for guidance.",
+								"Work independently and do my best.",
+							],
+							improper: [
+								"Yell at the group.",
+								"Refuse to participate in the project.",
+							],
+						},
+						{
+							text: "My sibling broke my favorite book.",
+							keywords: "book sibling shelf",
+							proper: [
+								"Talk to my sibling about being careful.",
+								"Ask for help in fixing it.",
+							],
+							improper: [
+								"Blame my sibling harshly.",
+								"Break one of their belongings in return.",
+							],
+						},
+						{
+							text: "I got a bad haircut.",
+							keywords: "hair salon mirror",
+							proper: [
+								"Talk to a trusted adult about my feelings.",
+								"Wear a hat or try a new hairstyle.",
+							],
+							improper: [
+								"Refuse to go outside.",
+								"Blame the hairdresser rudely.",
+							],
+						},
+						{
+							text: "I forgot my homework at home.",
+							keywords: "homework backpack desk",
+							proper: [
+								"Apologize to the teacher.",
+								"Ask for a chance to turn it in later.",
+							],
+							improper: [
+								"Blame my parents for not reminding me.",
+								"Refuse to explain to the teacher.",
+							],
+						},
+						{
+							text: "I lost my lunch money.",
+							keywords: "money wallet lunchbox",
+							proper: [
+								"Talk to a teacher or adult about what happened.",
+								"Ask if I can borrow some for lunch.",
+							],
+							improper: [
+								"Blame my friends without evidence.",
+								"Refuse to eat anything at all.",
+							],
+						},
+						{
+							text: "I got into an argument with my best friend.",
+							keywords: "friend bench frown",
+							proper: [
+								"Apologize if I was wrong.",
+								"Talk calmly to work things out.",
+							],
+							improper: [
+								"Ignore them completely.",
+								"Say mean things behind their back.",
+							],
+						},
+						{
+							text: "I spilled my drink on my school project.",
+							keywords: "drink project table",
+							proper: [
+								"Try to fix or redo the project.",
+								"Ask for help from an adult.",
+							],
+							improper: [
+								"Throw the project away in frustration.",
+								"Refuse to present it at school.",
+							],
+						},
+						{
+							text: "I lost a game I really wanted to win.",
+							keywords: "game board trophy",
+							proper: [
+								"Congratulate the winner.",
+								"Practice to improve for next time.",
+							],
+							improper: [
+								"Yell at the winner.",
+								"Refuse to play again.",
+							],
+						},
+						{
+							text: "I was scolded for forgetting to do my chores.",
+							keywords: "chores broom list",
+							proper: [
+								"Apologize and do the chores immediately.",
+								"Set a reminder for next time.",
+							],
+							improper: [
+								"Argue with my parents.",
+								"Refuse to do the chores at all.",
+							],
+						},
+						{
+							text: "I tripped and fell in front of my classmates.",
+							keywords: "ground classmates bruise",
+							proper: [
+								"Laugh it off and get back up.",
+								"Talk to a teacher if I feel embarrassed.",
+							],
+							improper: [
+								"Run away and refuse to return.",
+								"Get angry at those who laughed.",
+							],
+						},
+						{
+							text: "I was teased by someone at school.",
+							keywords: "school bully teacher",
+							proper: [
+								"Tell a teacher or trusted adult.",
+								"Stand up for myself politely.",
+							],
+							improper: [
+								"Start a fight with them.",
+								"Tease them back.",
+							],
+						},
+						{
+							text: "My plant died after I forgot to water it.",
+							keywords: "plant pot water",
+							proper: [
+								"Learn how to care for plants better.",
+								"Ask for advice on growing a new plant.",
+							],
+							improper: [
+								"Throw the plant pot away angrily.",
+								"Refuse to take care of plants again.",
+							],
+						},
+						{
+							text: "I accidentally broke a family heirloom.",
+							keywords: "heirloom vase pieces",
+							proper: [
+								"Apologize sincerely.",
+								"Offer to help fix or replace it.",
+							],
+							improper: [
+								"Hide it and pretend nothing happened.",
+								"Blame someone else for breaking it.",
+							],
+						},
+						{
+							text: "I dropped my ice cream on the ground.",
+							keywords: "ice cream cone ground",
+							proper: [
+								"Ask for help cleaning it up.",
+								"Look forward to having a new one later.",
+							],
+							improper: [
+								"Cry loudly and demand another one immediately.",
+								"Refuse to eat any dessert afterward.",
+							],
+						},
+						{
+							text: "I was told I couldn't go on a school trip.",
+							keywords: "trip bus bag",
+							proper: [
+								"Talk to my parents or teacher about why.",
+								"Find other ways to have fun at home.",
+							],
+							improper: [
+								"Refuse to talk to anyone.",
+								"Blame my parents for not letting me go.",
+							],
+						},
+						{
+							text: "I was left out of a game at recess.",
+							keywords: "game recess playground",
+							proper: [
+								"Ask politely if I can join.",
+								"Find another group to play with.",
+							],
+							improper: [
+								"Yell at the group for not including me.",
+								"Refuse to play with them ever again.",
+							],
+						},
+						{
+							text: "My favorite shirt got stained.",
+							keywords: "shirt stain washer",
+							proper: [
+								"Ask for help washing it.",
+								"Find another favorite shirt to wear.",
+							],
+							improper: [
+								"Throw the shirt away in anger.",
+								"Refuse to wear any other clothes.",
+							],
+						},
+						{
+							text: "I wasn't picked for a team I wanted to join.",
+							keywords: "team ball bench",
+							proper: [
+								"Practice to get better for next time.",
+								"Support the team and cheer for them.",
+							],
+							improper: [
+								"Criticize the team for not choosing me.",
+								"Refuse to participate in any teams.",
+							],
+						},
+					],
+				},
+
+				angry: {
+					scenarios: [
+						{
+							text: "Someone teased me in class.",
+							proper: [
+								"Tell a teacher about it.",
+								"Express my feelings calmly.",
+							],
+							improper: [
+								"Yell at the person.",
+								"Tease them back.",
+							],
+						},
+						{
+							text: "My sibling broke my toy.",
+							proper: [
+								"Ask my sibling to apologize.",
+								"Talk to an adult for help.",
+							],
+							improper: [
+								"Break one of their toys.",
+								"Refuse to speak to my sibling.",
+							],
+						},
+						{
+							text: "A friend skipped my turn in a game.",
+							proper: [
+								"Remind my friend politely.",
+								"Wait for my next turn calmly.",
+							],
+							improper: [
+								"Grab the dice from them.",
+								"Quit the game in anger.",
+							],
+						},
+						{
+							text: "I wasn't picked for the team at recess.",
+							proper: [
+								"Join another activity calmly.",
+								"Ask if you can join next time.",
+							],
+							improper: [
+								"Yell at the team leader.",
+								"Refuse to play anything else.",
+							],
+						},
+						{
+							text: "A classmate spilled juice on my homework.",
+							proper: [
+								"Let the teacher know about it.",
+								"Ask my classmate to apologize.",
+							],
+							improper: [
+								"Yell at them loudly.",
+								"Refuse to redo my homework.",
+							],
+						},
+						{
+							text: "Someone cut in front of me in line.",
+							proper: [
+								"Ask them politely to wait their turn.",
+								"Inform a teacher if needed.",
+							],
+							improper: [
+								"Push the person in anger.",
+								"Yell at them rudely.",
+							],
+						},
+						{
+							text: "A classmate laughed when I made a mistake.",
+							proper: [
+								"Ignore the teasing calmly.",
+								"Tell a teacher about it later.",
+							],
+							improper: [
+								"Yell at the classmate.",
+								"Laugh at them when they make a mistake.",
+							],
+						},
+						{
+							text: "My sibling ate the last piece of cake.",
+							proper: [
+								"Ask if they can share next time.",
+								"Talk to my parents about fairness.",
+							],
+							improper: [
+								"Refuse to talk to my sibling.",
+								"Take something of theirs in revenge.",
+							],
+						},
+						{
+							text: "Someone moved my chair without asking.",
+							proper: [
+								"Ask them to put it back politely.",
+								"Move to another seat calmly.",
+							],
+							improper: [
+								"Push the person who moved it.",
+								"Yell loudly to embarrass them.",
+							],
+						},
+						{
+							text: "My classmate borrowed my pencil without asking.",
+							proper: [
+								"Ask for my pencil back politely.",
+								"Tell the teacher if it continues.",
+							],
+							improper: [
+								"Grab the pencil back angrily.",
+								"Refuse to lend anything again.",
+							],
+						},
+					],
+				},
+				surprised: {
+					scenarios: [
+						{
+							text: "My friends threw me a surprise birthday party.",
+							proper: [
+								"Say thank you for the surprise.",
+								"Be grateful and express happiness.",
+							],
+							improper: [
+								"Ignore the surprise and walk away.",
+								"Complain about the party.",
+							],
+						},
+						{
+							text: "I found money in my backpack.",
+							proper: [
+								"Tell a teacher or parent about the money.",
+								"Ask if anyone lost money recently.",
+							],
+							improper: [
+								"Keep the money without asking.",
+								"Spend it immediately.",
+							],
+						},
+						{
+							text: "I got a surprise gift from my sibling.",
+							proper: [
+								"Thank my sibling.",
+								"Appreciate the thoughtful gesture.",
+							],
+							improper: [
+								"Complain about the gift.",
+								"Ignore my sibling.",
+							],
+						},
+						{
+							text: "I was told we're going on a surprise trip.",
+							proper: [
+								"Show excitement and gratitude.",
+								"Ask for more details calmly.",
+							],
+							improper: [
+								"Refuse to participate.",
+								"Complain about not knowing earlier.",
+							],
+						},
+						{
+							text: "I won a raffle at school.",
+							proper: [
+								"Say thank you to the organizers.",
+								"Share my joy with friends.",
+							],
+							improper: [
+								"Brag about my win.",
+								"Ignore others' participation.",
+							],
+						},
+						{
+							text: "I saw a double rainbow in the sky.",
+							proper: [
+								"Share my excitement with others.",
+								"Take a moment to admire it.",
+							],
+							improper: [
+								"Ignore the sight.",
+								"Complain about the weather.",
+							],
+						},
+						{
+							text: "A friend surprised me with a kind gesture.",
+							proper: [
+								"Thank my friend warmly.",
+								"Show my appreciation.",
+							],
+							improper: [
+								"Ignore the gesture.",
+								"Criticize the effort.",
+							],
+						},
+						{
+							text: "I was unexpectedly chosen to lead a project.",
+							proper: [
+								"Accept the role with gratitude.",
+								"Prepare for the task calmly.",
+							],
+							improper: [
+								"Refuse the role without consideration.",
+								"Complain about the responsibility.",
+							],
+						},
+						{
+							text: "I heard unexpected good news from my teacher.",
+							proper: [
+								"Thank my teacher.",
+								"Share my excitement respectfully.",
+							],
+							improper: [
+								"React loudly and disrupt the class.",
+								"Show off to classmates.",
+							],
+						},
+						{
+							text: "A bird landed near me while I was eating outside.",
+							proper: [
+								"Observe the bird quietly.",
+								"Share the experience with friends.",
+							],
+							improper: [
+								"Scare the bird away.",
+								"Yell loudly and disrupt others.",
+							],
+						},
+					],
+				},
+				scared: {
+					scenarios: [
+						{
+							text: "I heard a loud noise in the middle of the night.",
+							proper: [
+								"Tell an adult about the noise.",
+								"Stay calm and listen carefully.",
+							],
+							improper: [
+								"Run away without checking.",
+								"Yell and wake everyone up.",
+							],
+						},
+						{
+							text: "A big dog barked at me while I was walking.",
+							proper: [
+								"Stay still and calm.",
+								"Look for an adult or owner nearby.",
+							],
+							improper: ["Run away in fear.", "Yell at the dog."],
+						},
+						{
+							text: "The lights went out during a storm.",
+							proper: [
+								"Stay close to an adult.",
+								"Find a flashlight or candle calmly.",
+							],
+							improper: [
+								"Panic and yell.",
+								"Refuse to move until the lights return.",
+							],
+						},
+						{
+							text: "I got lost in a store.",
+							proper: [
+								"Ask a store worker for help.",
+								"Stay in one place and wait for an adult.",
+							],
+							improper: [
+								"Run around looking for someone.",
+								"Cry loudly without asking for help.",
+							],
+						},
+						{
+							text: "A spider crawled near my desk.",
+							proper: [
+								"Tell a teacher or adult.",
+								"Move away calmly.",
+							],
+							improper: [
+								"Scream loudly.",
+								"Try to smash it and make a mess.",
+							],
+						},
+						{
+							text: "I forgot my lines during a school play.",
+							proper: [
+								"Take a deep breath and try to remember.",
+								"Ask a peer for help.",
+							],
+							improper: [
+								"Run off the stage in fear.",
+								"Cry loudly and disrupt the play.",
+							],
+						},
+						{
+							text: "I heard thunder while I was playing outside.",
+							proper: [
+								"Go indoors immediately.",
+								"Tell an adult about the weather.",
+							],
+							improper: [
+								"Ignore the thunder and keep playing.",
+								"Yell and scare others.",
+							],
+						},
+						{
+							text: "A classmate told me a scary story.",
+							proper: [
+								"Tell them you don’t want to hear it.",
+								"Walk away calmly.",
+							],
+							improper: [
+								"Listen and get upset.",
+								"Yell at them to stop.",
+							],
+						},
+						{
+							text: "I saw a strange shadow in my room at night.",
+							proper: [
+								"Turn on the lights and check.",
+								"Call an adult if you're unsure.",
+							],
+							improper: [
+								"Hide under the bed.",
+								"Scream without checking.",
+							],
+						},
+						{
+							text: "A loud fire alarm went off during class.",
+							proper: [
+								"Follow the teacher's instructions.",
+								"Stay calm and exit safely.",
+							],
+							improper: [
+								"Panic and run around.",
+								"Yell and disrupt others.",
+							],
+						},
+					],
+				},
+				excited: {
+					scenarios: [
+						{
+							text: "I'm going to an amusement park this weekend.",
+							proper: [
+								"Share my excitement politely.",
+								"Prepare for the trip calmly.",
+							],
+							improper: [
+								"Yell loudly and disturb others.",
+								"Forget to pack important items.",
+							],
+						},
+						{
+							text: "I scored the winning goal in the match.",
+							proper: [
+								"Celebrate with my team respectfully.",
+								"Thank my teammates for their support.",
+							],
+							improper: [
+								"Taunt the losing team.",
+								"Take all the credit for the win.",
+							],
+						},
+						{
+							text: "I was told I’m getting a new bike.",
+							proper: [
+								"Thank my family for the gift.",
+								"Show my excitement calmly.",
+							],
+							improper: [
+								"Demand to get it immediately.",
+								"Complain about the color or style.",
+							],
+						},
+						{
+							text: "We are going on a family vacation.",
+							proper: [
+								"Help my family plan for the trip.",
+								"Share my excitement calmly.",
+							],
+							improper: [
+								"Yell and disrupt others.",
+								"Refuse to help with packing.",
+							],
+						},
+						{
+							text: "I am having my favorite meal for dinner.",
+							proper: [
+								"Thank my family for cooking.",
+								"Enjoy my meal calmly.",
+							],
+							improper: [
+								"Demand more food loudly.",
+								"Complain about other dishes.",
+							],
+						},
+						{
+							text: "I received a letter from a friend I missed.",
+							proper: [
+								"Write back a kind response.",
+								"Thank my friend for the letter.",
+							],
+							improper: [
+								"Ignore the letter.",
+								"Complain about the handwriting.",
+							],
+						},
+						{
+							text: "I learned how to ride a bike on my own.",
+							proper: [
+								"Share the news with family calmly.",
+								"Thank anyone who helped you learn.",
+							],
+							improper: [
+								"Show off by riding recklessly.",
+								"Criticize others who can’t ride yet.",
+							],
+						},
+						{
+							text: "I saw my favorite animal at the zoo.",
+							proper: [
+								"Enjoy watching it quietly.",
+								"Share my experience with friends.",
+							],
+							improper: [
+								"Yell loudly to scare the animal.",
+								"Demand to stay longer rudely.",
+							],
+						},
+						{
+							text: "I got my favorite dessert as a surprise.",
+							proper: [
+								"Thank the person who gave it to you.",
+								"Enjoy it calmly.",
+							],
+							improper: [
+								"Eat it all without sharing.",
+								"Complain about the portion size.",
+							],
+						},
+						{
+							text: "I found out I’m getting a new sibling.",
+							proper: [
+								"Celebrate with my family.",
+								"Share my excitement with others.",
+							],
+							improper: [
+								"Complain about sharing attention.",
+								"Ignore the news.",
+							],
+						},
+					],
+				},
+				calm: {
+					scenarios: [
+						{
+							text: "I listened to my favorite music after a long day.",
+							proper: [
+								"Relax and enjoy the moment quietly.",
+								"Focus on the music and stay calm.",
+							],
+							improper: [
+								"Turn the music up too loud.",
+								"Disturb others with noise.",
+							],
+						},
+						{
+							text: "I watched the sunset with my family.",
+							proper: [
+								"Enjoy the view quietly.",
+								"Talk about the beauty with my family.",
+							],
+							improper: [
+								"Complain about being outside.",
+								"Interrupt others with unrelated topics.",
+							],
+						},
+						{
+							text: "I read a book in a quiet room.",
+							proper: [
+								"Focus on the story.",
+								"Enjoy the peaceful environment.",
+							],
+							improper: [
+								"Make unnecessary noise.",
+								"Disturb others by talking.",
+							],
+						},
+						{
+							text: "I spent time drawing in my sketchbook.",
+							proper: [
+								"Stay focused and enjoy the process.",
+								"Share my drawing calmly.",
+							],
+							improper: [
+								"Complain if it doesn’t look perfect.",
+								"Throw my sketchbook in frustration.",
+							],
+						},
+						{
+							text: "I took a walk in the park.",
+							proper: [
+								"Enjoy the fresh air quietly.",
+								"Look at the flowers and trees peacefully.",
+							],
+							improper: [
+								"Run and shout at people passing by.",
+								"Complain about the weather.",
+							],
+						},
+						{
+							text: "I drank a warm cup of tea.",
+							proper: [
+								"Savor the taste calmly.",
+								"Take deep breaths and relax.",
+							],
+							improper: [
+								"Spill the tea intentionally.",
+								"Complain about the tea loudly.",
+							],
+						},
+						{
+							text: "I lay on the grass looking at the sky.",
+							proper: [
+								"Enjoy the moment silently.",
+								"Appreciate the clouds and stars.",
+							],
+							improper: [
+								"Yell about what you see.",
+								"Complain about insects.",
+							],
+						},
+						{
+							text: "I meditated in a quiet space.",
+							proper: [
+								"Breathe deeply and focus.",
+								"Enjoy the calm moment.",
+							],
+							improper: [
+								"Complain about sitting still.",
+								"Make noises to distract others.",
+							],
+						},
+						{
+							text: "I organized my desk at home.",
+							proper: [
+								"Focus on making it tidy.",
+								"Enjoy the sense of accomplishment.",
+							],
+							improper: [
+								"Throw things around.",
+								"Complain about the work.",
+							],
+						},
+						{
+							text: "I watched fish swimming in a tank.",
+							proper: [
+								"Observe them quietly.",
+								"Appreciate their colors and movement.",
+							],
+							improper: [
+								"Tap on the glass.",
+								"Complain about how slow they are.",
+							],
+						},
+					],
+				},
+				tired: {
+					scenarios: [
+						{
+							text: "I stayed up late finishing my homework.",
+							proper: [
+								"Take a break to rest.",
+								"Ask for help managing my time.",
+							],
+							improper: [
+								"Complain loudly about being tired.",
+								"Refuse to do anything else.",
+							],
+						},
+						{
+							text: "I played outside all afternoon.",
+							proper: [
+								"Drink water and rest.",
+								"Sit quietly to relax.",
+							],
+							improper: [
+								"Argue about wanting to keep playing.",
+								"Throw things in frustration.",
+							],
+						},
+						{
+							text: "I helped clean the house all day.",
+							proper: [
+								"Take a nap after finishing.",
+								"Drink some water to refresh yourself.",
+							],
+							improper: [
+								"Complain about the work.",
+								"Refuse to help next time.",
+							],
+						},
+						{
+							text: "I had a long day at school.",
+							proper: [
+								"Relax and watch something calm.",
+								"Take some time to rest.",
+							],
+							improper: [
+								"Argue with family about being tired.",
+								"Throw my bag on the floor.",
+							],
+						},
+						{
+							text: "I ran a long race during gym class.",
+							proper: [
+								"Drink water and cool down.",
+								"Sit and catch my breath calmly.",
+							],
+							improper: [
+								"Complain about the race.",
+								"Refuse to participate again.",
+							],
+						},
+						{
+							text: "I walked a lot at the zoo.",
+							proper: [
+								"Sit and rest for a while.",
+								"Enjoy looking at animals from a bench.",
+							],
+							improper: [
+								"Yell about being tired.",
+								"Refuse to walk anymore.",
+							],
+						},
+						{
+							text: "I carried heavy books to school.",
+							proper: [
+								"Ask for help next time.",
+								"Rest my back and shoulders.",
+							],
+							improper: [
+								"Throw the books angrily.",
+								"Refuse to carry them again.",
+							],
+						},
+						{
+							text: "I stayed up late watching a movie.",
+							proper: [
+								"Go to bed early the next night.",
+								"Drink water and take a nap.",
+							],
+							improper: [
+								"Complain about being sleepy.",
+								"Blame others for letting you stay up.",
+							],
+						},
+						{
+							text: "I played soccer for hours with my friends.",
+							proper: [
+								"Sit in the shade to rest.",
+								"Drink plenty of water.",
+							],
+							improper: [
+								"Complain about how tired you are.",
+								"Refuse to play next time.",
+							],
+						},
+						{
+							text: "I helped my sibling build a project all day.",
+							proper: [
+								"Take a nap afterward.",
+								"Thank them for the teamwork.",
+							],
+							improper: [
+								"Complain about how long it took.",
+								"Refuse to work together again.",
+							],
+						},
+					],
+				},
+				worried: {
+					scenarios: [
+						{
+							text: "I forgot to study for a test tomorrow.",
+							proper: [
+								"Do my best to study now.",
+								"Ask the teacher for advice.",
+							],
+							improper: [
+								"Panic and refuse to try.",
+								"Blame others for not reminding you.",
+							],
+						},
+						{
+							text: "I lost my library book.",
+							proper: [
+								"Look for it in quiet places.",
+								"Ask a teacher or librarian for help.",
+							],
+							improper: [
+								"Panic and stop looking.",
+								"Blame someone else for losing it.",
+							],
+						},
+						{
+							text: "I didn’t finish my homework on time.",
+							proper: [
+								"Talk to my teacher honestly.",
+								"Focus on completing it now.",
+							],
+							improper: [
+								"Refuse to finish it.",
+								"Blame others for distracting you.",
+							],
+						},
+						{
+							text: "My friend wasn’t answering their phone.",
+							proper: [
+								"Give them time to call back.",
+								"Check with a parent calmly.",
+							],
+							improper: [
+								"Panic and call repeatedly.",
+								"Get angry at my friend.",
+							],
+						},
+						{
+							text: "I heard about bad weather coming tomorrow.",
+							proper: [
+								"Ask my family about safety plans.",
+								"Prepare for staying indoors.",
+							],
+							improper: [
+								"Panic and refuse to sleep.",
+								"Scare others by overreacting.",
+							],
+						},
+						{
+							text: "My sibling seemed upset and wouldn’t talk.",
+							proper: [
+								"Ask them gently if they’re okay.",
+								"Give them space if they need it.",
+							],
+							improper: [
+								"Force them to talk immediately.",
+								"Ignore their feelings.",
+							],
+						},
+						{
+							text: "I was told I have to give a speech tomorrow.",
+							proper: [
+								"Prepare my notes and practice calmly.",
+								"Take deep breaths to relax.",
+							],
+							improper: [
+								"Refuse to participate.",
+								"Panic and blame others for not preparing you.",
+							],
+						},
+						{
+							text: "I thought I might have lost my backpack.",
+							proper: [
+								"Look for it calmly in the last place you had it.",
+								"Ask a teacher or adult for help.",
+							],
+							improper: [
+								"Blame my friends for losing it.",
+								"Refuse to look and panic instead.",
+							],
+						},
+						{
+							text: "My friend didn’t sit with me at lunch today.",
+							proper: [
+								"Ask them kindly if something is wrong.",
+								"Give them space if they need it.",
+							],
+							improper: [
+								"Get angry and ignore them.",
+								"Blame others for the situation.",
+							],
+						},
+					],
+				},
+				nervous: {
+					scenarios: [
+						{
+							text: "I forgot my lines during a class presentation.",
+							proper: [
+								"Take a deep breath and try to remember.",
+								"Ask for help from the teacher.",
+							],
+							improper: [
+								"Run out of the classroom.",
+								"Refuse to continue the presentation.",
+							],
+						},
+						{
+							text: "I was asked to answer a question I didn’t prepare for.",
+							proper: [
+								"Think carefully and try my best.",
+								"Admit that you don't know calmly.",
+							],
+							improper: [
+								"Blurt out random answers.",
+								"Refuse to speak and get upset.",
+							],
+						},
+						{
+							text: "I have to meet new classmates tomorrow.",
+							proper: [
+								"Prepare to introduce yourself.",
+								"Think about what you want to say.",
+							],
+							improper: [
+								"Panic and refuse to go to school.",
+								"Avoid everyone on purpose.",
+							],
+						},
+						{
+							text: "I was called on stage to speak unexpectedly.",
+							proper: [
+								"Take a deep breath and start slowly.",
+								"Focus on staying calm.",
+							],
+							improper: [
+								"Refuse to go up on stage.",
+								"Run off the stage immediately.",
+							],
+						},
+						{
+							text: "I had to talk to a teacher about a problem.",
+							proper: [
+								"Plan what to say ahead of time.",
+								"Speak slowly and clearly.",
+							],
+							improper: [
+								"Avoid the conversation entirely.",
+								"Cry and refuse to talk.",
+							],
+						},
+						{
+							text: "I have a big test coming up.",
+							proper: [
+								"Create a study plan to prepare.",
+								"Ask for help if needed.",
+							],
+							improper: [
+								"Avoid studying and panic.",
+								"Blame others for my worry.",
+							],
+						},
+						{
+							text: "I had to go to a new school.",
+							proper: [
+								"Think about making new friends.",
+								"Stay positive and open to change.",
+							],
+							improper: [
+								"Refuse to talk to anyone.",
+								"Stay upset about leaving my old school.",
+							],
+						},
+						{
+							text: "I had to sing in front of the class.",
+							proper: [
+								"Practice ahead of time.",
+								"Take calming breaths before starting.",
+							],
+							improper: [
+								"Refuse to sing.",
+								"Cry and leave the room.",
+							],
+						},
+						{
+							text: "I had to explain my project to the class.",
+							proper: [
+								"Plan my explanation ahead of time.",
+								"Speak slowly and clearly.",
+							],
+							improper: [
+								"Avoid the presentation.",
+								"Rush through it and leave early.",
+							],
+						},
+						{
+							text: "I was being interviewed for a school club.",
+							proper: [
+								"Answer questions politely and clearly.",
+								"Prepare by practicing beforehand.",
+							],
+							improper: [
+								"Refuse to participate.",
+								"Blame others for my nervousness.",
+							],
+						},
+					],
+				},
+				shy: {
+					scenarios: [
+						{
+							text: "I was asked to join a new group at recess.",
+							proper: [
+								"Smile and introduce yourself.",
+								"Try to participate in their game.",
+							],
+							improper: [
+								"Refuse to talk and walk away.",
+								"Hide and avoid the group.",
+							],
+						},
+						{
+							text: "A new student sat next to me in class.",
+							proper: [
+								"Say hello and introduce yourself.",
+								"Ask them how they’re doing.",
+							],
+							improper: [
+								"Ignore the student completely.",
+								"Refuse to talk to them.",
+							],
+						},
+						{
+							text: "I was asked to share my ideas in a group project.",
+							proper: [
+								"Share my thoughts calmly.",
+								"Write down my ideas if you're unsure.",
+							],
+							improper: [
+								"Stay silent the whole time.",
+								"Refuse to participate at all.",
+							],
+						},
+						{
+							text: "Someone asked me to join their table at lunch.",
+							proper: [
+								"Say thank you and sit with them.",
+								"Try to start a conversation.",
+							],
+							improper: [
+								"Avoid the table completely.",
+								"Refuse to eat lunch.",
+							],
+						},
+						{
+							text: "I was introduced to a new teacher.",
+							proper: [
+								"Smile and say hello.",
+								"Ask a simple question to get to know them.",
+							],
+							improper: [
+								"Avoid eye contact.",
+								"Stay silent and ignore them.",
+							],
+						},
+						{
+							text: "I had to participate in a group discussion.",
+							proper: [
+								"Listen carefully and share my ideas.",
+								"Ask questions to contribute.",
+							],
+							improper: [
+								"Avoid talking at all.",
+								"Refuse to join the discussion.",
+							],
+						},
+						{
+							text: "Someone invited me to their birthday party.",
+							proper: [
+								"Say thank you for the invite.",
+								"Plan a small gift for them.",
+							],
+							improper: [
+								"Ignore the invitation.",
+								"Refuse to go without explanation.",
+							],
+						},
+						{
+							text: "A teacher asked me to help with a task.",
+							proper: [
+								"Say yes and do my best.",
+								"Ask questions if you’re unsure.",
+							],
+							improper: [
+								"Refuse to help.",
+								"Avoid the teacher entirely.",
+							],
+						},
+						{
+							text: "Someone asked me to be their partner in an activity.",
+							proper: [
+								"Say yes and try my best.",
+								"Be kind and cooperative.",
+							],
+							improper: [
+								"Refuse to work with them.",
+								"Ignore them completely.",
+							],
+						},
+						{
+							text: "A classmate complimented my work.",
+							proper: [
+								"Say thank you politely.",
+								"Smile and acknowledge their compliment.",
+							],
+							improper: [
+								"Ignore the compliment.",
+								"Criticize my own work in response.",
+							],
+						},
+					],
+				},
+				confused: {
+					scenarios: [
+						{
+							text: "I didn’t understand my homework instructions.",
+							proper: [
+								"Ask my teacher for clarification.",
+								"Try to read the instructions carefully again.",
+							],
+							improper: [
+								"Refuse to do the homework.",
+								"Guess and do it wrong.",
+							],
+						},
+						{
+							text: "I didn’t know where my classroom was.",
+							proper: [
+								"Ask a teacher or classmate for help.",
+								"Look at the school map calmly.",
+							],
+							improper: [
+								"Wander around aimlessly.",
+								"Panic and refuse to go to class.",
+							],
+						},
+						{
+							text: "I didn’t understand the rules of a game.",
+							proper: [
+								"Ask someone to explain the rules.",
+								"Watch others play to learn.",
+							],
+							improper: [
+								"Refuse to play the game.",
+								"Complain about the unclear rules.",
+							],
+						},
+						{
+							text: "I couldn’t find my assigned seat in class.",
+							proper: [
+								"Ask the teacher where to sit.",
+								"Look for my name calmly.",
+							],
+							improper: [
+								"Sit anywhere without asking.",
+								"Refuse to stay in class.",
+							],
+						},
+						{
+							text: "I couldn’t find my school supplies in my bag.",
+							proper: [
+								"Take a moment to search carefully.",
+								"Ask a friend to lend you something.",
+							],
+							improper: [
+								"Panic and get upset.",
+								"Refuse to do the activity.",
+							],
+						},
+						{
+							text: "I didn’t understand the teacher’s instructions.",
+							proper: [
+								"Raise my hand and ask politely.",
+								"Ask a classmate for clarification.",
+							],
+							improper: [
+								"Ignore the instructions.",
+								"Do the wrong thing on purpose.",
+							],
+						},
+						{
+							text: "I couldn’t remember where to go after school.",
+							proper: [
+								"Ask an adult for help.",
+								"Stay in one place and wait calmly.",
+							],
+							improper: [
+								"Wander off on my own.",
+								"Panic and cry.",
+							],
+						},
+						{
+							text: "I didn’t know which tool to use for my art project.",
+							proper: [
+								"Ask the teacher for guidance.",
+								"Observe what others are using.",
+							],
+							improper: [
+								"Use random tools without thinking.",
+								"Refuse to do the project.",
+							],
+						},
+						{
+							text: "I didn’t understand the science experiment steps.",
+							proper: [
+								"Ask the teacher to explain.",
+								"Review the instructions again calmly.",
+							],
+							improper: [
+								"Mix random chemicals.",
+								"Give up and leave the activity.",
+							],
+						},
+						{
+							text: "I didn’t know where to go for the field trip activity.",
+							proper: [
+								"Ask a chaperone for help.",
+								"Look for my group calmly.",
+							],
+							improper: [
+								"Wander away from the group.",
+								"Panic and refuse to participate.",
+							],
+						},
+					],
+				},
+				frustrated: {
+					scenarios: [
+						{
+							text: "I couldn’t solve a math problem after many tries.",
+							proper: [
+								"Ask the teacher for help.",
+								"Take a break and try again later.",
+							],
+							improper: [
+								"Throw the paper across the room.",
+								"Yell and give up entirely.",
+							],
+						},
+						{
+							text: "My sibling didn’t listen to me while we were playing.",
+							proper: [
+								"Explain how you feel calmly.",
+								"Ask for an adult to help mediate.",
+							],
+							improper: [
+								"Yell at my sibling.",
+								"Refuse to play with them anymore.",
+							],
+						},
+						{
+							text: "I couldn’t figure out how to use a new app.",
+							proper: [
+								"Ask for help from a friend or teacher.",
+								"Read the instructions patiently.",
+							],
+							improper: [
+								"Click random buttons angrily.",
+								"Complain about the app being too hard.",
+							],
+						},
+						{
+							text: "My art project didn’t look the way I wanted it to.",
+							proper: [
+								"Try to fix it calmly.",
+								"Ask for tips from a teacher or classmate.",
+							],
+							improper: [
+								"Rip it up in anger.",
+								"Refuse to finish the project.",
+							],
+						},
+						{
+							text: "I couldn’t tie my shoelaces properly.",
+							proper: [
+								"Ask someone to show you again.",
+								"Keep practicing patiently.",
+							],
+							improper: [
+								"Throw my shoes on the floor.",
+								"Yell and refuse to wear them.",
+							],
+						},
+						{
+							text: "My computer froze during an important task.",
+							proper: [
+								"Ask for help restarting it.",
+								"Take a deep breath and wait calmly.",
+							],
+							improper: [
+								"Hit the keyboard.",
+								"Complain loudly to others.",
+							],
+						},
+						{
+							text: "My team lost a game during recess.",
+							proper: [
+								"Congratulate the other team.",
+								"Try to learn from my mistakes.",
+							],
+							improper: [
+								"Yell at my teammates.",
+								"Refuse to play any more games.",
+							],
+						},
+						{
+							text: "My little sibling made a mess in my room.",
+							proper: [
+								"Ask them to help clean it up.",
+								"Talk to a parent about it calmly.",
+							],
+							improper: [
+								"Yell at my sibling.",
+								"Push them out of the room in anger.",
+							],
+						},
+						{
+							text: "My favorite video game level was too hard to beat.",
+							proper: [
+								"Take a break and try again later.",
+								"Look for tips online to help you.",
+							],
+							improper: [
+								"Throw the controller.",
+								"Refuse to play the game anymore.",
+							],
+						},
+						{
+							text: "I got stuck on a question during a test.",
+							proper: [
+								"Skip it and come back to it later.",
+								"Take a deep breath and try my best.",
+							],
+							improper: [
+								"Complain loudly in the middle of the test.",
+								"Leave the test unfinished.",
+							],
+						},
+					],
+				},
+				bored: {
+					scenarios: [
+						{
+							text: "I had nothing to do during a long car ride.",
+							proper: [
+								"Play a quiet game or read a book.",
+								"Look out the window and enjoy the view.",
+							],
+							improper: [
+								"Complain to everyone in the car.",
+								"Refuse to sit still.",
+							],
+						},
+						{
+							text: "I finished my classwork early.",
+							proper: [
+								"Ask the teacher for extra activities.",
+								"Read a book while you wait.",
+							],
+							improper: [
+								"Talk loudly and distract others.",
+								"Get up and wander around the class.",
+							],
+						},
+						{
+							text: "I was stuck indoors on a rainy day.",
+							proper: [
+								"Find an indoor activity to enjoy.",
+								"Spend time drawing or reading.",
+							],
+							improper: [
+								"Complain about not going outside.",
+								"Refuse to do anything at all.",
+							],
+						},
+						{
+							text: "I didn’t like the movie we were watching as a family.",
+							proper: [
+								"Watch quietly and respect others.",
+								"Ask to pick the next movie calmly.",
+							],
+							improper: [
+								"Complain loudly during the movie.",
+								"Leave the room and slam the door.",
+							],
+						},
+						{
+							text: "I had to wait in a long line at the store.",
+							proper: [
+								"Be patient and stay in line.",
+								"Play a quiet game to pass the time.",
+							],
+							improper: [
+								"Complain loudly about the wait.",
+								"Leave the line without permission.",
+							],
+						},
+						{
+							text: "I didn’t enjoy the food served for dinner.",
+							proper: [
+								"Eat what you can and thank the cook.",
+								"Politely ask for something else next time.",
+							],
+							improper: [
+								"Refuse to eat and complain loudly.",
+								"Throw the food away angrily.",
+							],
+						},
+						{
+							text: "I was asked to do the same chore as yesterday.",
+							proper: [
+								"Do the chore quickly and get it done.",
+								"Ask politely if you can switch tasks next time.",
+							],
+							improper: [
+								"Refuse to do the chore.",
+								"Complain the whole time while working.",
+							],
+						},
+						{
+							text: "I didn’t enjoy the book we were reading in class.",
+							proper: [
+								"Participate quietly in the discussion.",
+								"Think of questions to ask about the book.",
+							],
+							improper: [
+								"Refuse to read the book.",
+								"Distract others with unrelated topics.",
+							],
+						},
+						{
+							text: "I had to wait for a friend who was running late.",
+							proper: [
+								"Wait patiently and think of conversation topics.",
+								"Message them politely to check in.",
+							],
+							improper: [
+								"Complain about how long they are taking.",
+								"Leave before they arrive.",
+							],
+						},
+						{
+							text: "I couldn’t go to the park because of bad weather.",
+							proper: [
+								"Play an indoor game instead.",
+								"Find something creative to do at home.",
+							],
+							improper: [
+								"Complain about the weather.",
+								"Refuse to participate in other activities.",
+							],
+						},
+					],
+				},
+				devastated: {
+					scenarios: [
+						{
+							text: "I lost my favorite toy.",
+							proper: [
+								"Tell an adult about how you feel.",
+								"Look for the toy calmly.",
+							],
+							improper: [
+								"Cry loudly and refuse to look.",
+								"Blame others for losing it.",
+							],
+						},
+						{
+							text: "I found out my friend was moving away.",
+							proper: [
+								"Talk to my friend about staying in touch.",
+								"Share my feelings with a trusted adult.",
+							],
+							improper: [
+								"Ignore my friend completely.",
+								"Get angry at them for leaving.",
+							],
+						},
+						{
+							text: "My team lost an important game.",
+							proper: [
+								"Congratulate the other team.",
+								"Talk to my coach about improving.",
+							],
+							improper: [
+								"Yell at my teammates.",
+								"Refuse to play in future games.",
+							],
+						},
+						{
+							text: "My project was accidentally ruined by a classmate.",
+							proper: [
+								"Talk to the classmate calmly.",
+								"Ask the teacher for help fixing it.",
+							],
+							improper: [
+								"Yell at the classmate.",
+								"Refuse to work on it again.",
+							],
+						},
+						{
+							text: "I got a lower grade than I expected on my test.",
+							proper: [
+								"Ask the teacher for feedback.",
+								"Work on improving next time.",
+							],
+							improper: [
+								"Tear up the test paper.",
+								"Refuse to study for the next test.",
+							],
+						},
+						{
+							text: "I missed out on a trip because I was sick.",
+							proper: [
+								"Rest and recover fully.",
+								"Ask my friends about the trip later.",
+							],
+							improper: [
+								"Complain about being sick.",
+								"Refuse to listen to my friends’ stories.",
+							],
+						},
+						{
+							text: "I didn’t win the contest I entered.",
+							proper: [
+								"Congratulate the winners.",
+								"Ask for feedback to do better next time.",
+							],
+							improper: [
+								"Cry and refuse to talk to anyone.",
+								"Blame the judges for the loss.",
+							],
+						},
+						{
+							text: "My sibling accidentally broke something I loved.",
+							proper: [
+								"Talk to my sibling calmly.",
+								"Ask if they can help fix it.",
+							],
+							improper: [
+								"Yell at my sibling.",
+								"Break something of theirs in return.",
+							],
+						},
+						{
+							text: "My favorite sports team lost the championship.",
+							proper: [
+								"Talk about what they did well.",
+								"Focus on supporting them next season.",
+							],
+							improper: [
+								"Refuse to support the team anymore.",
+								"Yell about the players being bad.",
+							],
+						},
+					],
+				},
+				focused: {
+					scenarios: [
+						{
+							text: "I was working on a difficult puzzle.",
+							proper: [
+								"Take my time and focus on each piece.",
+								"Stay calm and keep trying different combinations.",
+							],
+							improper: [
+								"Rush through and get frustrated.",
+								"Give up halfway without trying.",
+							],
+						},
+						{
+							text: "I was studying for a big test.",
+							proper: [
+								"Take breaks and focus on one subject at a time.",
+								"Review my notes carefully.",
+							],
+							improper: [
+								"Get distracted with my phone.",
+								"Skip studying because it feels too hard.",
+							],
+						},
+						{
+							text: "I was building a LEGO model.",
+							proper: [
+								"Follow the instructions step by step.",
+								"Stay patient and take it one piece at a time.",
+							],
+							improper: [
+								"Throw pieces around when it doesn’t work.",
+								"Stop building halfway.",
+							],
+						},
+						{
+							text: "I was helping to bake cookies.",
+							proper: [
+								"Follow the recipe carefully.",
+								"Focus on measuring the ingredients correctly.",
+							],
+							improper: [
+								"Guess the amounts without measuring.",
+								"Get distracted and leave the kitchen.",
+							],
+						},
+						{
+							text: "I was solving a tricky riddle.",
+							proper: [
+								"Think carefully about the clues.",
+								"Ask for help if you're stuck.",
+							],
+							improper: [
+								"Give up right away.",
+								"Get upset and refuse to try.",
+							],
+						},
+						{
+							text: "I was painting a picture.",
+							proper: [
+								"Concentrate on my brushstrokes.",
+								"Take my time to choose the right colors.",
+							],
+							improper: [
+								"Rush through and make a mess.",
+								"Throw the brushes when it’s not perfect.",
+							],
+						},
+						{
+							text: "I was writing a story for class.",
+							proper: [
+								"Plan the story before writing.",
+								"Focus on completing one section at a time.",
+							],
+							improper: [
+								"Get distracted and leave it unfinished.",
+								"Refuse to edit my mistakes.",
+							],
+						},
+						{
+							text: "I was practicing for a school performance.",
+							proper: [
+								"Focus on the movements or lines.",
+								"Practice consistently until you improve.",
+							],
+							improper: [
+								"Ignore feedback and do it my own way.",
+								"Give up after the first mistake.",
+							],
+						},
+						{
+							text: "I was learning a new game with friends.",
+							proper: [
+								"Pay attention to the rules carefully.",
+								"Take my time to understand how to play.",
+							],
+							improper: [
+								"Get distracted and stop listening.",
+								"Quit when you don’t understand.",
+							],
+						},
+						{
+							text: "I was assembling a new toy.",
+							proper: [
+								"Read the instructions carefully.",
+								"Ask for help if needed.",
+							],
+							improper: [
+								"Skip the instructions and guess.",
+								"Throw pieces when frustrated.",
+							],
+						},
+					],
+				},
+				okay: {
+					scenarios: [
+						{
+							text: "I completed my homework for the day.",
+							proper: [
+								"Feel good about being responsible.",
+								"Plan my time for the next task calmly.",
+							],
+							improper: [
+								"Complain about not having free time.",
+								"Rush through it and make mistakes.",
+							],
+						},
+						{
+							text: "I ate a simple but filling lunch.",
+							proper: [
+								"Appreciate the meal you had.",
+								"Clean up after eating.",
+							],
+							improper: [
+								"Complain about the food.",
+								"Leave my plate on the table.",
+							],
+						},
+						{
+							text: "I played a short game with friends.",
+							proper: [
+								"Enjoy the time spent together.",
+								"Thank them for playing with you.",
+							],
+							improper: [
+								"Complain about losing.",
+								"Stop playing halfway through.",
+							],
+						},
+						{
+							text: "I finished my chores on time.",
+							proper: [
+								"Feel satisfied about completing my work.",
+								"Take a break before starting something new.",
+							],
+							improper: [
+								"Complain about how hard it was.",
+								"Leave a part of the task unfinished.",
+							],
+						},
+						{
+							text: "I listened to my favorite song.",
+							proper: [
+								"Enjoy the moment and feel good.",
+								"Share my favorite parts with a friend.",
+							],
+							improper: [
+								"Play it too loudly and disturb others.",
+								"Complain about not having new songs.",
+							],
+						},
+						{
+							text: "I solved a few math problems.",
+							proper: [
+								"Feel good about completing the work.",
+								"Plan to tackle the next set of problems.",
+							],
+							improper: [
+								"Rush through and make mistakes.",
+								"Refuse to continue after one hard problem.",
+							],
+						},
+						{
+							text: "I helped clean up after dinner.",
+							proper: [
+								"Feel responsible for contributing.",
+								"Take pride in doing my part.",
+							],
+							improper: [
+								"Complain about the task.",
+								"Leave without finishing the cleanup.",
+							],
+						},
+						{
+							text: "I read a chapter from my favorite book.",
+							proper: [
+								"Feel happy about the story.",
+								"Look forward to the next chapter.",
+							],
+							improper: [
+								"Rush through the chapter.",
+								"Skip parts of the story because you’re tired.",
+							],
+						},
+						{
+							text: "I went for a short walk in the park.",
+							proper: [
+								"Enjoy the fresh air and feel calm.",
+								"Think about things you saw during the walk.",
+							],
+							improper: [
+								"Complain about the short time.",
+								"Refuse to go on walks again.",
+							],
+						},
+					],
+				},
+				out_of_control: {
+					scenarios: [
+						{
+							text: "I spilled juice all over the table.",
+							proper: [
+								"Clean up the spill calmly.",
+								"Ask for help if needed.",
+							],
+							improper: [
+								"Yell and blame someone else.",
+								"Refuse to clean up.",
+							],
+						},
+						{
+							text: "I knocked over a stack of books accidentally.",
+							proper: [
+								"Apologize and pick up the books.",
+								"Ask for help to put them back.",
+							],
+							improper: [
+								"Leave the mess and walk away.",
+								"Blame someone else for stacking them wrong.",
+							],
+						},
+						{
+							text: "I got too excited while playing a game.",
+							proper: [
+								"Calm down and apologize if you disturbed anyone.",
+								"Focus on playing fairly.",
+							],
+							improper: [
+								"Yell and throw the game pieces.",
+								"Continue disrupting the game.",
+							],
+						},
+						{
+							text: "I argued loudly with my sibling.",
+							proper: [
+								"Take a deep breath and calm down.",
+								"Apologize and talk it out.",
+							],
+							improper: [
+								"Refuse to stop yelling.",
+								"Push or hit my sibling.",
+							],
+						},
+						{
+							text: "I didn’t want to do my homework.",
+							proper: [
+								"Take a break and start small tasks.",
+								"Ask for help if you're struggling.",
+							],
+							improper: [
+								"Yell and refuse to start.",
+								"Blame my teacher for giving me too much work.",
+							],
+						},
+						{
+							text: "I couldn’t win at a video game.",
+							proper: [
+								"Take a break and try again later.",
+								"Ask for tips to improve.",
+							],
+							improper: [
+								"Throw the controller in anger.",
+								"Yell at my teammates.",
+							],
+						},
+						{
+							text: "I ran too fast and fell down.",
+							proper: [
+								"Get up slowly and check for injuries.",
+								"Ask for help if you're hurt.",
+							],
+							improper: [
+								"Cry loudly without checking yourself.",
+								"Blame someone else for my fall.",
+							],
+						},
+						{
+							text: "I got angry when someone cut in line.",
+							proper: [
+								"Politely ask them to wait their turn.",
+								"Tell a teacher or adult calmly.",
+							],
+							improper: [
+								"Yell at them rudely.",
+								"Push them out of the line.",
+							],
+						},
+						{
+							text: "I made a mistake while working on my project.",
+							proper: [
+								"Stay calm and think of a way to fix it.",
+								"Ask for help if needed.",
+							],
+							improper: [
+								"Rip up the project.",
+								"Refuse to continue working on it.",
+							],
+						},
+						{
+							text: "I accidentally spilled water on my desk.",
+							proper: [
+								"Clean it up quickly and calmly.",
+								"Ask for help if it’s too much.",
+							],
+							improper: [
+								"Leave the mess and walk away.",
+								"Blame someone else for distracting you.",
+							],
+						},
+					],
+				},
+				proud: {
+					scenarios: [
+						{
+							text: "I learned how to ride a bike on my own.",
+							proper: [
+								"Share the good news with my family.",
+								"Thank those who helped you learn.",
+							],
+							improper: [
+								"Brag about it to others.",
+								"Make fun of others who can't ride yet.",
+							],
+						},
+						{
+							text: "I got a perfect score on a test.",
+							proper: [
+								"Thank my teacher for their help.",
+								"Celebrate my hard work with family.",
+							],
+							improper: [
+								"Show off to classmates.",
+								"Mock those who didn't score as high.",
+							],
+						},
+						{
+							text: "I finished reading a long book.",
+							proper: [
+								"Share what you learned with a friend.",
+								"Feel happy about completing it.",
+							],
+							improper: [
+								"Brag about how smart you are.",
+								"Say others should read faster.",
+							],
+						},
+						{
+							text: "I helped clean up after a class project.",
+							proper: [
+								"Feel good about helping the class.",
+								"Thank others who helped as well.",
+							],
+							improper: [
+								"Complain about not getting credit.",
+								"Refuse to help next time.",
+							],
+						},
+						{
+							text: "I scored the winning goal in a game.",
+							proper: [
+								"Celebrate respectfully with my team.",
+								"Thank my teammates for their support.",
+							],
+							improper: [
+								"Taunt the losing team.",
+								"Take all the credit for yourself.",
+							],
+						},
+						{
+							text: "I helped a friend with their homework.",
+							proper: [
+								"Feel proud for being helpful.",
+								"Encourage my friend to keep learning.",
+							],
+							improper: [
+								"Brag about being smarter than them.",
+								"Tell others they needed my help.",
+							],
+						},
+						{
+							text: "I drew a picture that everyone liked.",
+							proper: [
+								"Thank those who complimented it.",
+								"Feel happy about my effort.",
+							],
+							improper: [
+								"Criticize others' drawings.",
+								"Say my work is better than theirs.",
+							],
+						},
+						{
+							text: "I was asked to lead a group activity.",
+							proper: [
+								"Thank the teacher for trusting you.",
+								"Lead the group respectfully.",
+							],
+							improper: [
+								"Act bossy and ignore others' ideas.",
+								"Refuse to let others help.",
+							],
+						},
+						{
+							text: "I helped my sibling learn a new skill.",
+							proper: [
+								"Encourage them to keep practicing.",
+								"Feel good about being a helpful sibling.",
+							],
+							improper: [
+								"Say they couldn't have done it without you.",
+								"Tell others they aren't good at it yet.",
+							],
+						},
+						{
+							text: "I donated toys to a charity drive.",
+							proper: [
+								"Feel happy about helping others.",
+								"Encourage others to do the same.",
+							],
+							improper: [
+								"Tell everyone about my donation.",
+								"Complain about giving up my toys.",
+							],
+						},
+					],
+				},
+				relaxed: {
+					scenarios: [
+						{
+							text: "I spent time coloring in my sketchbook.",
+							proper: [
+								"Enjoy the quiet activity.",
+								"Appreciate my finished artwork.",
+							],
+							improper: [
+								"Rush through it carelessly.",
+								"Complain about the time it takes.",
+							],
+						},
+						{
+							text: "I watched clouds drift across the sky.",
+							proper: [
+								"Take deep breaths and enjoy the view.",
+								"Think about the shapes you see in the clouds.",
+							],
+							improper: [
+								"Complain about being bored.",
+								"Yell loudly and disturb others.",
+							],
+						},
+						{
+							text: "I lay in bed listening to soft music.",
+							proper: [
+								"Relax and enjoy the moment.",
+								"Think about the melodies.",
+							],
+							improper: [
+								"Play the music too loudly.",
+								"Complain about wanting a different song.",
+							],
+						},
+						{
+							text: "I sat by a pond watching ducks swim.",
+							proper: [
+								"Observe the ducks quietly.",
+								"Appreciate the calm atmosphere.",
+							],
+							improper: [
+								"Yell to scare the ducks away.",
+								"Complain about having to sit there.",
+							],
+						},
+						{
+							text: "I took a warm bath after a long day.",
+							proper: [
+								"Enjoy the warm water quietly.",
+								"Take deep breaths and relax.",
+							],
+							improper: [
+								"Splash water everywhere.",
+								"Complain about staying in too long.",
+							],
+						},
+						{
+							text: "I watched a candle flicker in a dark room.",
+							proper: [
+								"Focus on the peaceful light.",
+								"Stay quiet and enjoy the moment.",
+							],
+							improper: [
+								"Blow out the candle repeatedly.",
+								"Complain about the dim light.",
+							],
+						},
+						{
+							text: "I drank a cup of hot chocolate on a cold evening.",
+							proper: [
+								"Savor the warm drink quietly.",
+								"Appreciate the cozy moment.",
+							],
+							improper: [
+								"Complain about wanting something else.",
+								"Spill the drink carelessly.",
+							],
+						},
+						{
+							text: "I sat in a hammock swaying gently.",
+							proper: [
+								"Enjoy the gentle motion.",
+								"Think about how relaxing it feels.",
+							],
+							improper: [
+								"Swing the hammock wildly.",
+								"Complain about wanting to do something else.",
+							],
+						},
+						{
+							text: "I practiced deep breathing before bed.",
+							proper: [
+								"Focus on each breath calmly.",
+								"Enjoy feeling more relaxed.",
+							],
+							improper: [
+								"Complain about being tired.",
+								"Refuse to practice the breathing.",
+							],
+						},
+					],
+				},
+				silly: {
+					scenarios: [
+						{
+							text: "I told a funny joke to my friends.",
+							proper: [
+								"Laugh with my friends.",
+								"Share another funny story if they like it.",
+							],
+							improper: [
+								"Make fun of someone in the joke.",
+								"Keep repeating the joke loudly.",
+							],
+						},
+						{
+							text: "I wore a funny hat during a costume party.",
+							proper: [
+								"Laugh and enjoy the moment.",
+								"Compliment others' costumes too.",
+							],
+							improper: [
+								"Make fun of others' costumes.",
+								"Demand everyone look only at you.",
+							],
+						},
+						{
+							text: "I made a silly face in the mirror.",
+							proper: [
+								"Laugh and enjoy the moment.",
+								"Show my family the funny face.",
+							],
+							improper: [
+								"Refuse to stop making faces at others.",
+								"Distract others with my silliness.",
+							],
+						},
+						{
+							text: "I played a goofy game with my sibling.",
+							proper: [
+								"Laugh and enjoy playing together.",
+								"Share funny ideas during the game.",
+							],
+							improper: [
+								"Refuse to take turns in the game.",
+								"Make fun of my sibling for losing.",
+							],
+						},
+						{
+							text: "I watched a funny video online.",
+							proper: [
+								"Laugh quietly and share it with a friend.",
+								"Think about why it made you laugh.",
+							],
+							improper: [
+								"Play the video loudly and interrupt others.",
+								"Laugh at someone in a mean way.",
+							],
+						},
+						{
+							text: "I tried on oversized shoes and walked around.",
+							proper: [
+								"Enjoy how silly it feels.",
+								"Show my family and laugh together.",
+							],
+							improper: [
+								"Refuse to return the shoes.",
+								"Complain about them being uncomfortable.",
+							],
+						},
+						{
+							text: "I pretended to be a funny character while playing.",
+							proper: [
+								"Enjoy acting silly with friends.",
+								"Take turns making jokes.",
+							],
+							improper: [
+								"Refuse to let others act too.",
+								"Make fun of their pretend characters.",
+							],
+						},
+						{
+							text: "I tried to balance a spoon on my nose.",
+							proper: [
+								"Laugh at yourself if it falls.",
+								"Encourage others to try too.",
+							],
+							improper: [
+								"Throw the spoon in frustration.",
+								"Criticize others for trying.",
+							],
+						},
+						{
+							text: "I played a silly game where everyone laughs.",
+							proper: [
+								"Join in the laughter.",
+								"Encourage everyone to keep having fun.",
+							],
+							improper: [
+								"Make jokes at others' expense.",
+								"Refuse to let others play.",
+							],
+						},
+						{
+							text: "I watched a clown perform at a fair.",
+							proper: [
+								"Laugh at the clown's jokes.",
+								"Share what you liked about the performance.",
+							],
+							improper: [
+								"Make fun of the clown.",
+								"Disrupt the performance with loud remarks.",
+							],
+						},
+					],
+				},
+				terrified: {
+					scenarios: [
+						{
+							text: "I heard a loud thunderclap at night.",
+							proper: [
+								"Stay close to an adult for comfort.",
+								"Focus on staying calm until it passes.",
+							],
+							improper: [
+								"Cry loudly without stopping.",
+								"Refuse to go back to bed.",
+							],
+						},
+						{
+							text: "I saw a spider crawling on my desk.",
+							proper: [
+								"Move away calmly and ask for help.",
+								"Watch it from a distance until someone removes it.",
+							],
+							improper: [
+								"Scream loudly and run away.",
+								"Smash it and create a mess.",
+							],
+						},
+						{
+							text: "I got separated from my family at the park.",
+							proper: [
+								"Stay in one place and wait for them.",
+								"Ask a park worker for help calmly.",
+							],
+							improper: [
+								"Run around yelling for them.",
+								"Hide and refuse to ask for help.",
+							],
+						},
+						{
+							text: "I heard a strange noise outside my window.",
+							proper: [
+								"Tell an adult immediately.",
+								"Stay calm and don’t panic.",
+							],
+							improper: [
+								"Scream and refuse to stay in my room.",
+								"Open the window to check by yourself.",
+							],
+						},
+						{
+							text: "I was stuck on a high climbing structure.",
+							proper: [
+								"Ask for help from an adult.",
+								"Hold on tightly and wait for help.",
+							],
+							improper: [
+								"Cry loudly and let go.",
+								"Yell at others to hurry.",
+							],
+						},
+						{
+							text: "I was chased by a dog while riding my bike.",
+							proper: [
+								"Stay calm and keep pedaling steadily.",
+								"Call for help from an adult nearby.",
+							],
+							improper: [
+								"Yell at the dog.",
+								"Stop suddenly and panic.",
+							],
+						},
+						{
+							text: "I was alone in a dark room.",
+							proper: [
+								"Turn on a light or find a flashlight.",
+								"Calmly call out for someone.",
+							],
+							improper: [
+								"Cry loudly without moving.",
+								"Refuse to leave the room.",
+							],
+						},
+						{
+							text: "I got lost at the mall.",
+							proper: [
+								"Ask a worker for help finding my family.",
+								"Wait at the information desk calmly.",
+							],
+							improper: [
+								"Run around yelling.",
+								"Refuse to stay in one place.",
+							],
+						},
+						{
+							text: "I saw a scary scene in a movie.",
+							proper: [
+								"Close my eyes or look away.",
+								"Tell an adult you’re scared.",
+							],
+							improper: [
+								"Yell and disrupt others watching.",
+								"Refuse to watch movies again.",
+							],
+						},
+						{
+							text: "I was stuck in a small elevator.",
+							proper: [
+								"Take deep breaths and stay calm.",
+								"Press the help button and wait.",
+							],
+							improper: [
+								"Panic and yell loudly.",
+								"Try to force the doors open.",
+							],
+						},
+					],
+				},
+				panicked: {
+					scenarios: [
+						{
+							text: "I forgot my project at home on the due date.",
+							proper: [
+								"Explain the situation to my teacher calmly.",
+								"Ask if you can bring it later.",
+							],
+							improper: [
+								"Blame mum for forgetting it.",
+								"Refuse to talk about it.",
+							],
+						},
+						{
+							text: "I didn’t understand the rules during a quiz.",
+							proper: [
+								"Raise my hand and ask the teacher.",
+								"Read the instructions carefully again.",
+							],
+							improper: [
+								"Panic and guess randomly.",
+								"Refuse to answer any questions.",
+							],
+						},
+						{
+							text: "I missed the bus to school.",
+							proper: [
+								"Ask a parent for help getting to school.",
+								"Apologize and plan better next time.",
+							],
+							improper: [
+								"Blame others for being late.",
+								"Refuse to go to school that day.",
+							],
+						},
+						{
+							text: "I saw a bee flying near me.",
+							proper: [
+								"Stay still and wait for it to fly away.",
+								"Walk away slowly if needed.",
+							],
+							improper: [
+								"Scream and swat at the bee.",
+								"Run around and scare others.",
+							],
+						},
+						{
+							text: "I lost my money at the store.",
+							proper: [
+								"Ask an adult for help.",
+								"Retrace my steps to find it.",
+							],
+							improper: [
+								"Panic and accuse someone of taking it.",
+								"Cry and refuse to leave the store.",
+							],
+						},
+						{
+							text: "I forgot my lines during a play.",
+							proper: [
+								"Take a deep breath and try to remember.",
+								"Look to a friend for a hint.",
+							],
+							improper: [
+								"Run off stage in a panic.",
+								"Refuse to go back on stage.",
+							],
+						},
+						{
+							text: "I couldn’t find my homework folder in my bag.",
+							proper: [
+								"Take a moment to look carefully.",
+								"Tell the teacher you’ll bring it tomorrow.",
+							],
+							improper: [
+								"Blame my parents for losing it.",
+								"Refuse to do the assignment again.",
+							],
+						},
+						{
+							text: "I got locked out of the house accidentally.",
+							proper: [
+								"Call someone for help.",
+								"Wait calmly for someone to open the door.",
+							],
+							improper: [
+								"Panic and yell loudly.",
+								"Try to break into the house.",
+							],
+						},
+						{
+							text: "I thought I left my phone on the bus.",
+							proper: [
+								"Ask someone to call it and check.",
+								"Retrace my steps calmly.",
+							],
+							improper: [
+								"Panic and yell at others.",
+								"Blame the bus driver for losing it.",
+							],
+						},
+						{
+							text: "I couldn’t find my seat on the airplane.",
+							proper: [
+								"Ask a flight attendant for help.",
+								"Look at my ticket carefully.",
+							],
+							improper: [
+								"Yell loudly for someone to help.",
+								"Sit in the wrong seat without checking.",
+							],
+						},
+					],
+				},
+				sick: {
+					scenarios: [
+						{
+							text: "I woke up with a fever.",
+							proper: [
+								"Tell a parent or guardian about my fever.",
+								"Rest and drink plenty of fluids.",
+							],
+							improper: [
+								"Go to school and ignore the fever.",
+								"Play outside with friends while feeling unwell.",
+							],
+						},
+						{
+							text: "I have a stomachache at school.",
+							proper: [
+								"Tell my teacher or nurse about it.",
+								"Sit quietly and rest until I feel better.",
+							],
+							improper: [
+								"Run around during recess.",
+								"Refuse to tell anyone about my stomachache.",
+							],
+						},
+						{
+							text: "I have a sore throat.",
+							proper: [
+								"Drink warm liquids and rest my voice.",
+								"Take the medicine my doctor gave me.",
+							],
+							improper: [
+								"Yell loudly to ignore the pain.",
+								"Refuse to take the medicine.",
+							],
+						},
+						{
+							text: "I feel dizzy during class.",
+							proper: [
+								"Raise my hand and tell the teacher.",
+								"Ask to visit the nurse.",
+							],
+							improper: [
+								"Keep sitting in discomfort.",
+								"Ignore the dizziness and run in the hall.",
+							],
+						},
+						{
+							text: "I caught a cold.",
+							proper: [
+								"Stay home to recover.",
+								"Wash my hands to avoid spreading germs.",
+							],
+							improper: [
+								"Cough on others without covering my mouth.",
+								"Go out and play instead of resting.",
+							],
+						},
+					],
+				},
+				loss_of_some_control: {
+					scenarios: [
+						{
+							text: "I dropped my ice cream on the floor.",
+							proper: [
+								"Ask for help to clean it up.",
+								"Calmly ask for another scoop if possible.",
+							],
+							improper: [
+								"Cry and refuse to calm down.",
+								"Throw the cone in frustration.",
+							],
+						},
+						{
+							text: "My favorite TV show ended unexpectedly.",
+							proper: [
+								"Take deep breaths to calm down.",
+								"Find another activity to enjoy.",
+							],
+							improper: [
+								"Shout and complain loudly.",
+								"Refuse to listen to anyone.",
+							],
+						},
+						{
+							text: "My friend didn’t invite me to their party.",
+							proper: [
+								"Talk to my friend about how I feel.",
+								"Focus on spending time with other friends.",
+							],
+							improper: [
+								"Cry uncontrollably.",
+								"Refuse to talk to my friend again.",
+							],
+						},
+						{
+							text: "I didn’t win a prize at the school fair.",
+							proper: [
+								"Congratulate those who won.",
+								"Try to enjoy other activities at the fair.",
+							],
+							improper: [
+								"Complain loudly about the results.",
+								"Knock over things in frustration.",
+							],
+						},
+						{
+							text: "I made a mistake during my presentation.",
+							proper: [
+								"Apologize and keep going.",
+								"Laugh it off and continue presenting.",
+							],
+							improper: [
+								"Refuse to continue the presentation.",
+								"Yell in frustration.",
+							],
+						},
+					],
+				},
+				ready_to_learn: {
+					scenarios: [
+						{
+							text: "My teacher introduced a new topic in class.",
+							proper: [
+								"Listen carefully and take notes.",
+								"Ask questions to better understand.",
+							],
+							improper: [
+								"Ignore the teacher and talk to friends.",
+								"Play games on my tablet instead.",
+							],
+						},
+						{
+							text: "I sat down to start my homework.",
+							proper: [
+								"Organize my materials before starting.",
+								"Focus on one problem at a time.",
+							],
+							improper: [
+								"Stare at my phone instead of working.",
+								"Complain loudly about the homework.",
+							],
+						},
+						{
+							text: "I am working on a group project.",
+							proper: [
+								"Share my ideas and listen to others.",
+								"Help my group complete the tasks.",
+							],
+							improper: [
+								"Ignore the group and do my own thing.",
+								"Distract others by joking around.",
+							],
+						},
+						{
+							text: "I am reviewing for a big test.",
+							proper: [
+								"Review my notes and ask questions.",
+								"Create a study plan to cover all topics.",
+							],
+							improper: [
+								"Watch TV instead of studying.",
+								"Procrastinate until the last minute.",
+							],
+						},
+						{
+							text: "I am learning a new skill in class.",
+							proper: [
+								"Practice the skill with patience.",
+								"Ask for help when needed.",
+							],
+							improper: [
+								"Refuse to try because it’s difficult.",
+								"Disrupt others who are practicing.",
+							],
+						},
+					],
+				},
+				moving_slowly: {
+					scenarios: [
+						{
+							text: "I am walking to class after recess.",
+							proper: [
+								"Walk steadily to avoid being late.",
+								"Focus on reaching the class on time.",
+							],
+							improper: [
+								"Stop to chat with friends on the way.",
+								"Wander around and arrive late.",
+							],
+						},
+						{
+							text: "I am feeling tired while doing homework.",
+							proper: [
+								"Take short breaks to re-energize.",
+								"Focus on completing one task at a time.",
+							],
+							improper: [
+								"Procrastinate and do nothing.",
+								"Complain about being tired instead of starting.",
+							],
+						},
+						{
+							text: "I am walking in a crowded hallway.",
+							proper: [
+								"Walk carefully to avoid bumping into others.",
+								"Stay focused on reaching my destination.",
+							],
+							improper: [
+								"Walk aimlessly and block others' way.",
+								"Stop suddenly, causing a crowd behind me.",
+							],
+						},
+						{
+							text: "I need to pack my bag before school.",
+							proper: [
+								"Focus on packing essentials quickly.",
+								"Ask for help if I’m too tired to focus.",
+							],
+							improper: [
+								"Move slowly and forget important items.",
+								"Waste time and delay leaving for school.",
+							],
+						},
+						{
+							text: "I am finishing a meal during lunchtime.",
+							proper: [
+								"Eat at a steady pace to finish on time.",
+								"Pack any leftovers neatly if needed.",
+							],
+							improper: [
+								"Eat extremely slowly and miss playtime.",
+								"Leave food unfinished without trying.",
+							],
+						},
+						{
+							text: "I am tying my shoes before heading outside.",
+							proper: [
+								"Focus on tying my shoes quickly and neatly.",
+								"Ask for help if needed.",
+							],
+							improper: [
+								"Take too long and make others wait.",
+								"Refuse to tie them and drag my feet.",
+							],
+						},
+						{
+							text: "I am lining up for the school bus.",
+							proper: [
+								"Walk to the line at a steady pace.",
+								"Stand in line calmly and wait for my turn.",
+							],
+							improper: [
+								"Move too slowly and delay everyone.",
+								"Stop to talk and hold up the line.",
+							],
+						},
+						{
+							text: "I am cleaning up my toys after playtime.",
+							proper: [
+								"Pick up the toys one by one steadily.",
+								"Focus on cleaning up quickly so others can use the space.",
+							],
+							improper: [
+								"Move slowly and leave a mess behind.",
+								"Delay cleaning up by playing with the toys again.",
+							],
+						},
+						{
+							text: "I need to get dressed before going out.",
+							proper: [
+								"Quickly choose clothes and get dressed.",
+								"Focus on getting ready in time.",
+							],
+							improper: [
+								"Take too long to decide what to wear.",
+								"Move too slowly and delay the outing.",
+							],
+						},
+						{
+							text: "I am walking to the cafeteria for lunch.",
+							proper: [
+								"Walk at a steady pace to reach on time.",
+								"Stay focused on getting to my seat.",
+							],
+							improper: [
+								"Stop to look around and delay others.",
+								"Wander off and miss lunch time.",
+							],
+						},
+						{
+							text: "I am putting away my supplies after class.",
+							proper: [
+								"Pack up my supplies quickly and neatly.",
+								"Ensure my desk is clean before leaving.",
+							],
+							improper: [
+								"Move too slowly and make others wait for me.",
+								"Forget to pack everything due to distractions.",
+							],
+						},
+						{
+							text: "I am getting ready to go to bed.",
+							proper: [
+								"Quickly change into pajamas and brush my teeth.",
+								"Get into bed without distractions.",
+							],
+							improper: [
+								"Move slowly and delay bedtime.",
+								"Take too long brushing my teeth and stay up late.",
+							],
+						},
+						{
+							text: "I am preparing my backpack for a trip.",
+							proper: [
+								"Pack essentials quickly and double-check.",
+								"Ask for help if I’m unsure about what to pack.",
+							],
+							improper: [
+								"Move slowly and make the group wait.",
+								"Forget important items because I wasted time.",
+							],
+						},
+						{
+							text: "I need to catch the bus in the morning.",
+							proper: [
+								"Get ready quickly and head to the stop on time.",
+								"Prepare my things the night before to save time.",
+							],
+							improper: [
+								"Move too slowly and miss the bus.",
+								"Ignore the time and make others late too.",
+							],
+						},
+						{
+							text: "I am walking to the park with friends.",
+							proper: [
+								"Walk at a steady pace to keep up with the group.",
+								"Stay focused on reaching the park.",
+							],
+							improper: [
+								"Lag behind and make others wait.",
+								"Stop repeatedly to look at unrelated things.",
+							],
+						},
+						{
+							text: "I need to finish my chores before playing.",
+							proper: [
+								"Complete my chores steadily and efficiently.",
+								"Focus on finishing quickly so I can play.",
+							],
+							improper: [
+								"Move slowly and take too long.",
+								"Delay chores by complaining about them.",
+							],
+						},
+						{
+							text: "I need to turn in my homework to the teacher.",
+							proper: [
+								"Walk at a steady pace to submit my work.",
+								"Place the homework neatly on the desk.",
+							],
+							improper: [
+								"Take too long and miss the submission deadline.",
+								"Delay submitting by chatting with friends.",
+							],
+						},
+						{
+							text: "I am heading to the playground for recess.",
+							proper: [
+								"Walk at a steady pace to enjoy recess.",
+								"Focus on reaching the playground on time.",
+							],
+							improper: [
+								"Move too slowly and miss playtime.",
+								"Wander off and delay reaching the playground.",
+							],
+						},
+						{
+							text: "I need to put on my shoes before PE class.",
+							proper: [
+								"Quickly put on my shoes and tie them.",
+								"Ask for help if I’m struggling.",
+							],
+							improper: [
+								"Move too slowly and miss the start of class.",
+								"Delay putting them on by getting distracted.",
+							],
+						},
+						{
+							text: "I need to return a book to the library.",
+							proper: [
+								"Walk steadily to return the book on time.",
+								"Make sure the book is in good condition.",
+							],
+							improper: [
+								"Move slowly and miss the return deadline.",
+								"Stop to chat and delay returning the book.",
+							],
+						},
+						{
+							text: "I am waiting in line for lunch at school.",
+							proper: [
+								"Stay in line and move steadily forward.",
+								"Keep my focus on waiting my turn.",
+							],
+							improper: [
+								"Move too slowly and hold up the line.",
+								"Stop paying attention and lose my place.",
+							],
+						},
+						{
+							text: "I need to finish a puzzle before bedtime.",
+							proper: [
+								"Focus on finishing quickly but neatly.",
+								"Ask for help if I’m stuck.",
+							],
+							improper: [
+								"Move slowly and delay bedtime.",
+								"Leave the puzzle unfinished and waste time.",
+							],
+						},
+						{
+							text: "I am heading to music class.",
+							proper: [
+								"Walk steadily to arrive on time.",
+								"Prepare my materials before entering class.",
+							],
+							improper: [
+								"Move too slowly and miss the start of class.",
+								"Stop to talk and delay reaching class.",
+							],
+						},
+						{
+							text: "I need to return a borrowed item to a friend.",
+							proper: [
+								"Walk steadily to give it back quickly.",
+								"Ensure the item is returned in good condition.",
+							],
+							improper: [
+								"Move too slowly and forget to return it.",
+								"Delay returning it by being distracted.",
+							],
+						},
+						{
+							text: "I need to grab my snack during a break.",
+							proper: [
+								"Quickly grab my snack and start eating.",
+								"Focus on finishing my snack on time.",
+							],
+							improper: [
+								"Move slowly and miss my snack time.",
+								"Waste time looking for something else to eat.",
+							],
+						},
+						{
+							text: "I need to get ready for a family outing.",
+							proper: [
+								"Quickly dress and pack my essentials.",
+								"Focus on helping others prepare if I’m ready.",
+							],
+							improper: [
+								"Move slowly and delay everyone else.",
+								"Refuse to hurry even when time is short.",
+							],
+						},
+						{
+							text: "I am setting the table for dinner.",
+							proper: [
+								"Set the table steadily and neatly.",
+								"Focus on finishing before dinner is served.",
+							],
+							improper: [
+								"Move too slowly and make others wait.",
+								"Forget items because I’m moving too slowly.",
+							],
+						},
+						{
+							text: "I need to clean up after an art activity.",
+							proper: [
+								"Pick up supplies steadily and put them away.",
+								"Ensure the area is clean before leaving.",
+							],
+							improper: [
+								"Move too slowly and leave a mess behind.",
+								"Delay cleanup by continuing to play with supplies.",
+							],
+						},
+					],
+				},
+				hitting: {
+					scenarios: [
+						{
+							text: "My friend accidentally bumped into me.",
+							proper: [
+								"Say it’s okay and move on.",
+								"Politely ask them to be careful.",
+								"Take a deep breath to calm myself before responding.",
+							],
+							improper: [
+								"Hit them out of anger.",
+								"Push them away aggressively.",
+							],
+						},
+						{
+							text: "I lost a game during recess.",
+							proper: [
+								"Congratulate the winner and try again next time.",
+								"Take a deep breath and calm myself.",
+								"Use positive self-talk to handle the frustration.",
+								"Take a short break if I feel overwhelmed.",
+							],
+							improper: [
+								"Hit my friend in frustration.",
+								"Kick the game pieces out of anger.",
+							],
+						},
+						{
+							text: "Someone took the seat I wanted in class.",
+							proper: [
+								"Politely ask if I can sit there next time.",
+								"Find another seat and let it go.",
+								"Count to ten or use silent calming techniques.",
+							],
+							improper: [
+								"Hit them to make them move.",
+								"Yell at them to get up.",
+							],
+						},
+						{
+							text: "I dropped my toy, and my sibling laughed.",
+							proper: [
+								"Ignore their reaction and pick it up.",
+								"Politely ask them to stop laughing.",
+								"Take a deep breath or walk away to calm myself.",
+							],
+							improper: [
+								"Hit my sibling out of anger.",
+								"Throw the toy at them.",
+							],
+						},
+						{
+							text: "I didn’t get picked for the team I wanted.",
+							proper: [
+								"Join another team and try my best.",
+								"Encourage my team to do well.",
+								"Remind myself that it’s okay to not always get what I want.",
+							],
+							improper: [
+								"Hit the person who picked teams.",
+								"Refuse to play and disrupt the game.",
+							],
+						},
+					],
+				},
+
+				elated: {
+					scenarios: [
+						{
+							text: "I was chosen as the star of the week in class.",
+							proper: [
+								"Thank my teacher for the recognition.",
+								"Celebrate with my family.",
+							],
+							improper: [
+								"Brag about it to my classmates.",
+								"Ignore my responsibilities because I’m excited.",
+							],
+						},
+						{
+							text: "I scored the winning goal in a soccer game.",
+							proper: [
+								"Congratulate my teammates for their efforts.",
+								"Thank the coach for their guidance.",
+							],
+							improper: [
+								"Tease the opposing team for losing.",
+								"Celebrate too loudly and disrupt others.",
+							],
+						},
+						{
+							text: "I received the highest grade in my class.",
+							proper: [
+								"Encourage others to do their best.",
+								"Celebrate calmly with my friends and family.",
+							],
+							improper: [
+								"Show off my grade to others.",
+								"Mock those who didn’t score well.",
+							],
+						},
+						{
+							text: "My parents planned a surprise trip for me.",
+							proper: [
+								"Thank them for the thoughtful gesture.",
+								"Pack my things and prepare for the trip.",
+							],
+							improper: [
+								"Complain about the trip not being longer.",
+								"Refuse to help with packing due to excitement.",
+							],
+						},
+					],
+				},
+				wiggly: {
+					scenarios: [
+						{
+							text: "I am sitting in a long class lesson.",
+							proper: [
+								"Take small breaks to stretch when allowed.",
+								"Focus on the lesson and keep my hands still.",
+							],
+							improper: [
+								"Fidget loudly and distract others.",
+								"Move around the room without permission.",
+							],
+						},
+						{
+							text: "I am waiting for my turn during a group activity.",
+							proper: [
+								"Wait patiently and watch others participate.",
+								"Keep my hands in my lap while I wait.",
+							],
+							improper: [
+								"Tap on the table loudly.",
+								"Interrupt others because I can’t sit still.",
+							],
+						},
+						{
+							text: "I am at a family dinner.",
+							proper: [
+								"Sit calmly and eat my meal.",
+								"Talk politely with family members.",
+							],
+							improper: [
+								"Wiggle in my chair and kick the table.",
+								"Leave my seat without asking.",
+							],
+						},
+						{
+							text: "I am watching a movie in a theater.",
+							proper: [
+								"Sit quietly and enjoy the movie.",
+								"Stay in my seat without disturbing others.",
+							],
+							improper: [
+								"Move between seats during the movie.",
+								"Kick the chair in front of me.",
+							],
+						},
+						{
+							text: "I am in a library with my class.",
+							proper: [
+								"Sit calmly and read my book.",
+								"Talk quietly if I need help.",
+							],
+							improper: [
+								"Move around the library without permission.",
+								"Fidget loudly and distract others.",
+							],
+						},
+					],
+				},
+			};
+
+			const resultDiv = document.getElementById("result");
+			const buttons = document.getElementById("buttons");
+			const buttonHover = document.querySelectorAll(".buttons button");
+			const behaviorButtons = document.getElementById("behavior-buttons");
+			const behaviorButtonsChild =
+				behaviorButtons.querySelectorAll("button");
+			const scenarioEmotion = document.getElementById("scenario-emotion");
+			// go Buckeyes!
+			const colors = ["#bb0000", "#ffffff"];
+
+			const zoneColors = {
+				blue: "#0158A8", // Light Blue
+				green: "#008B52", // Light Green
+				yellow: "#FDF100", // Light Yellow
+				red: "#E4173E", // Light Red
+			};
+
+			const emotionZones = {
+				sad: "blue",
+				sick: "blue",
+				tired: "blue",
+				bored: "blue",
+				moving_slowly: "blue",
+				shy: "blue",
+				devastated: "blue",
+				happy: "green",
+				calm: "green",
+				okay: "green",
+				focused: "green",
+				surprised: "green",
+				proud: "green",
+				relaxed: "green",
+				ready_to_learn: "green",
+				frustrated: "yellow",
+				worried: "yellow",
+				silly: "yellow",
+				wiggly: "yellow",
+				excited: "yellow",
+				scared: "yellow",
+				nervous: "yellow",
+				confused: "yellow",
+				loss_of_some_control: "yellow",
+				angry: "red",
+				terrified: "red",
+				out_of_control: "red",
+				yelling: "red",
+				hitting: "red",
+				elated: "red",
+				panicked: "red",
+			};
+
+			function setBackground(emotion) {
+				const zone = emotionZones[emotion];
+				if (zone && zoneColors[zone]) {
+					buttons.style.background = zoneColors[zone];
+
+					behaviorButtonsChild.forEach((button) => {
+						button.style.backgroundColor = zoneColors[zone];
+						if (zone === "yellow" && !button.disabled) {
+							button.style.color = "black";
+						} else if (zone !== "yellow" && !button.disabled) {
+							button.style.color = "white";
+						} else if (button.disabled) {
+							button.style.color = "";
+						}
+					});
+					buttonHover.forEach((button) => {
+						if (zone !== "yellow") {
+							button.style.color = "white";
+						} else {
+							button.style.color = "black";
+						}
+						button.addEventListener("mouseenter", () => {
+							button.style.background = zoneColors[zone];
+						});
+						button.addEventListener("mouseleave", () => {
+							button.style.background = zoneColors[zone];
+						});
+					});
+				} else {
+					behaviorButtons.style.background = "#dbe2ef"; // Default color
+				}
+			}
+
+			async function showScenario() {
+				let emotion = scenarioEmotion.value
+					.toLowerCase()
+					.trim()
+					.split(" ")
+					.join("_");
+				if (emotion === "feeling_okay") {
+					emotion = "okay";
+				}
+				await setBackground(emotion);
+				let imageLink;
+				const selectedData = data[emotion];
+				if (selectedData && selectedData.scenarios.length > 0) {
+					// Reset buttons
+					resetButtons();
+
+					// Pick a random scenario
+					const randomIndex = Math.floor(
+						Math.random() * selectedData.scenarios.length
+					);
+					const selectedScenario = selectedData.scenarios.splice(
+						randomIndex,
+						1
+					)[0];
+
+					resultDiv.innerHTML = `<p>${selectedScenario.text}</p>`;
+					behaviorButtons.classList.remove("hidden");
+
+					// Shuffle and assign behaviors
+					const allBehaviors = [
+						...selectedScenario.proper.map((b) => ({
+							text: b,
+							type: "proper",
+						})),
+						...selectedScenario.improper.map((b) => ({
+							text: b,
+							type: "improper",
+						})),
+					];
+					shuffleArray(allBehaviors);
+
+					// Update button text dynamically
+					const buttons = document.querySelectorAll(
+						".behavior-buttons button"
+					);
+					buttons.forEach((button, index) => {
+						button.textContent = allBehaviors[index].text;
+						button.onclick = function () {
+							checkBehavior(
+								allBehaviors[index].type,
+								button,
+								emotion
+							);
+						};
+						button.disabled = false;
+					});
+
+					if (selectedScenario.keywords) {
+						imageLink = await fetchImage(selectedScenario.keywords);
+					}
+
+					// Display the scenario
+					if (imageLink) {
+						resultDiv.innerHTML = `<img src=${imageLink} width="150" height="150";/><p>${selectedScenario.text}</p>`;
+					}
+				} else {
+					resultDiv.innerHTML = `<p>No more ${emotion
+						.split("_")
+						.join(" ")} scenarios left.</p>`;
+					behaviorButtons.classList.add("hidden");
+				}
+			}
+
+			function resetButtons() {
+				const buttons = document.querySelectorAll(
+					".behavior-buttons button"
+				);
+				buttons.forEach((button) => {
+					button.textContent = "";
+					button.disabled = true;
+				});
+			}
+
+			function checkBehavior(type, button, emotion) {
+				if (type === "proper") {
+					let duration = 1 * 1000;
+					let end = Date.now() + duration;
+					resultDiv.innerHTML += `<p style="color: green;"><strong>Correct! Great job!</strong></p>`;
+					button.disabled = true;
+					setBackground(emotion);
+					(function frame() {
+						confetti({
+							particleCount: 2,
+							angle: 60,
+							spread: 100,
+							origin: { x: 0 },
+							colors: colors,
+						});
+
+						confetti({
+							particleCount: 2,
+							angle: 120,
+							spread: 100,
+							origin: { x: 1 },
+							colors: colors,
+						});
+						if (Date.now() < end) {
+							requestAnimationFrame(frame);
+						}
+					})();
+				} else {
+					resultDiv.innerHTML += `<p style="color: red;">Oops! That's an improper behavior. Try again!</p>`;
+					button.disabled = true; // Disable correct button
+					setBackground(emotion);
+				}
+			}
+
+			function areAllProperSelected() {
+				const buttons = document.querySelectorAll(
+					".behavior-buttons button"
+				);
+				const properButtons = Array.from(buttons).filter((button) =>
+					button.textContent.includes("thank")
+				);
+				return properButtons.every((button) => button.disabled);
+			}
+
+			function shuffleArray(array) {
+				for (let i = array.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[array[i], array[j]] = [array[j], array[i]];
+				}
+			}
+		</script>
+		<script>
+			// API Keys
+			const PIXABAY_API_KEY = "47307382-ed872411434e8f65cbc4abd9b";
+
+			// Pixabay API - Fetch Image URL (with per_page=1)
+			async function fetchImage(keywords) {
+				const response = await axios.get("https://pixabay.com/api/", {
+					params: {
+						key: PIXABAY_API_KEY,
+						q: keywords,
+						image_type: "illustration",
+						per_page: 3, // Limit to one result
+						safesearch: true,
+					},
+				});
+				const hits = response.data.hits;
+				return hits.length > 0 ? hits[0].webformatURL : null;
+			}
+		</script>
+	</body>
+</html>
